@@ -6,6 +6,32 @@
     <link rel="icon" href="Screenshot_2025_1209_164830.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+      .slots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.slot {
+    background: #000;
+    border: 1px solid #555;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.slot img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    background: #222;
+}
+
+.slot p {
+    font-size: 12px;
+    text-align: center;
+    margin: 5px 0 0;
+}
+
        html, body {
     margin: 0;
     padding: 0;
@@ -67,6 +93,23 @@ body {
     </style>
 </head>
 <body>
+<div class="slots">
+    <div class="slot" onclick="saveToSlot(1)">
+        <img id="thumb-1">
+        <p id="title-1">空白存檔</p>
+    </div>
+    <div class="slot" onclick="saveToSlot(2)">
+        <img id="thumb-2">
+        <p id="title-2">空白存檔</p>
+    </div>
+    <div class="slot" onclick="saveToSlot(3)">
+        <img id="thumb-3">
+        <p id="title-3">空白存檔</p>
+    </div>
+
+    <!-- 重複到 9 格 -->
+    <!-- 4 ~ 9 -->
+</div>
 
     <div id="video-container">
         <video id="main-video" controls autoplay>
@@ -82,6 +125,63 @@ body {
 </body>
 </html>
 <script>
+  const story = {
+  start: {
+    title: "未接來電",
+    video: "videos/scene1.mp4",
+    choices: [...]
+  },
+  reply: {
+    title: "回信給他",
+    video: "videos/scene2.mp4",
+    choices: [...]
+  }
+};
+function captureThumbnail() {
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    return canvas.toDataURL("image/png");
+}
+function saveToSlot(slot) {
+    video.pause();
+
+    const saveData = {
+        scene: currentScene,
+        title: story[currentScene].title,
+        thumbnail: captureThumbnail()
+    };
+
+    localStorage.setItem("save_slot_" + slot, JSON.stringify(saveData));
+    updateSlotUI(slot, saveData);
+
+    closeMenus();
+}
+function updateSlotUI(slot, data) {
+    document.getElementById("thumb-" + slot).src = data.thumbnail;
+    document.getElementById("title-" + slot).innerText = data.title;
+}
+function loadSaveSlots() {
+    for (let i = 1; i <= 9; i++) {
+        const saved = localStorage.getItem("save_slot_" + i);
+        if (saved) {
+            updateSlotUI(i, JSON.parse(saved));
+        }
+    }
+}
+function loadFromSlot(slot) {
+    const saved = localStorage.getItem("save_slot_" + slot);
+    if (!saved) return;
+
+    const data = JSON.parse(saved);
+    closeMenus();
+    loadScene(data.scene);
+}
+
 const video = document.getElementById("main-video");
 const optionsContainer = document.getElementById("options-container");
 
