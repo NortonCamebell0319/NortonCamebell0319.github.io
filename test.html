@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>。･ﾟ･互動視頻。･ﾟ･ 《未接來電》</title>
-    <link rel="icon" type="image/png" href="Screenshot_2025_1209_164830.png">
+<link rel="icon" type="image/png" href="Screenshot_2025_1209_164830.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -16,7 +16,7 @@ html, body {
     font-family: Arial, sans-serif;
 }
 
-/* ===== 影片 ===== */
+/* 影片 */
 #video-container {
     position: fixed;
     inset: 0;
@@ -29,7 +29,7 @@ html, body {
     background: black;
 }
 
-/* ===== 選項 ===== */
+/* 選項 */
 #options {
     position: absolute;
     bottom: 12%;
@@ -49,7 +49,7 @@ html, body {
     cursor: pointer;
 }
 
-/* ===== 右側固定按鈕 ===== */
+/* 右側按鈕 */
 #menu-btns {
     position: fixed;
     right: 20px;
@@ -70,7 +70,17 @@ html, body {
     cursor: pointer;
 }
 
-/* ===== Overlay ===== */
+/* 回到開端 */
+#restart {
+    position: absolute;
+    bottom: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    z-index: 20;
+}
+
+/* Overlay */
 .menu {
     position: fixed;
     inset: 0;
@@ -97,7 +107,7 @@ html, body {
     cursor: pointer;
 }
 
-/* ===== 存檔格 ===== */
+/* 存檔格 */
 .slots {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -135,20 +145,13 @@ html, body {
         <button onclick="openSaveMenu()">存檔</button>
         <button onclick="openLoadMenu()">讀檔</button>
     </div>
-</div>
-    <div id="restart" style="
-    position:absolute;
-    bottom:12%;
-    left:50%;
-    transform:translateX(-50%);
-    display:none;
-    z-index:20;
-">
-    <button onclick="restartGame()">回到開端>ㄏㄨㄟ ㄉㄠ>ㄏ
+
+    <div id="restart">
+        <button onclick="restartGame()">回到開端</button>
+    </div>
 </div>
 
-
-<!-- 存檔畫面 -->
+<!-- 存檔 -->
 <div id="save-menu" class="menu">
     <div class="menu-box">
         <span class="close" onclick="closeMenus()">✕</span>
@@ -157,7 +160,7 @@ html, body {
     </div>
 </div>
 
-<!-- 讀檔畫面 -->
+<!-- 讀檔 -->
 <div id="load-menu" class="menu">
     <div class="menu-box">
         <span class="close" onclick="closeMenus()">✕</span>
@@ -167,11 +170,11 @@ html, body {
 </div>
 
 <script>
-/* ===== 劇情資料 ===== */
+/* ===== 劇情資料（換影片只改這裡）===== */
 const story = {
     start: {
         title: "開端",
-        video: "開端.mp4",
+        video: "開端.mp4",   // ← 你的影片檔名
         choices: [
             { text: "上前詢問", next: "reply" },
             { text: "不管了，還是回家吧……", next: "ignore" }
@@ -180,70 +183,75 @@ const story = {
 
     reply: {
         title: "初次見面",
-        video: "videos/scene2.mp4",
+        video: "videos/scene2.mp4",  // ← 換成你的影片
         choices: []
     },
 
     ignore: {
         title: "無法停留的人間",
-        video: "end喧囂.mp4",
+        video: "end喧囂.mp4",  // ← 結局影片
         choices: [],
         isEnd: true
     }
 };
 
-
+/* ===== 系統 ===== */
 const video = document.getElementById("main-video");
 const options = document.getElementById("options");
 let currentScene = "start";
+let wasPlaying = false;
 
-/* ===== 播放場景 ===== */
+/* 播放場景 */
 function loadScene(key) {
     currentScene = key;
     const scene = story[key];
     video.src = scene.video;
     options.style.display = "none";
+    document.getElementById("restart").style.display = "none";
 
     video.onended = () => {
         options.innerHTML = "";
+
+        if (scene.isEnd) {
+            document.getElementById("restart").style.display = "block";
+            return;
+        }
+
         scene.choices.forEach(c => {
             const btn = document.createElement("button");
             btn.textContent = c.text;
             btn.onclick = () => loadScene(c.next);
             options.appendChild(btn);
         });
-        if (scene.choices.length) options.style.display = "flex";
+
+        if (scene.choices.length) {
+            options.style.display = "flex";
+        }
     };
 }
 
-/* ===== 存讀介面 ===== */
+/* 存讀介面 */
 function openSaveMenu() {
-    wasPlaying = !video.paused; // 記住原本有沒有在播
-    video.pause();              // ⭐ 存檔時暫停影片
+    wasPlaying = !video.paused;
+    video.pause();
     generateSlots("save");
     document.getElementById("save-menu").style.display = "block";
 }
 
-
 function openLoadMenu() {
-    wasPlaying = !video.paused; // 記住原本有沒有在播
-    video.pause();              // ⭐ 讀檔時也暫停影片
+    wasPlaying = !video.paused;
+    video.pause();
     generateSlots("load");
     document.getElementById("load-menu").style.display = "block";
 }
 
-
 function closeMenus() {
     document.getElementById("save-menu").style.display = "none";
     document.getElementById("load-menu").style.display = "none";
-
-    if (wasPlaying) {
-        video.play(); // ⭐ 如果原本在播，關閉後繼續
-    }
+    if (wasPlaying) video.play();
 }
 
-
-/* ===== 自動生成 9 格 ===== */
+/* 存檔格 */
 function generateSlots(type) {
     const container = document.getElementById(type + "-slots");
     container.innerHTML = "";
@@ -261,7 +269,6 @@ function generateSlots(type) {
             img.src = save.thumbnail;
             p.innerText = save.title;
         } else {
-            img.src = "";
             p.innerText = "空白存檔";
         }
 
@@ -277,7 +284,7 @@ function generateSlots(type) {
     }
 }
 
-/* ===== 擷取畫面 ===== */
+/* 擷取畫面 */
 function captureThumbnail() {
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
@@ -286,77 +293,42 @@ function captureThumbnail() {
     return canvas.toDataURL("image/png");
 }
 
-/* ===== 存檔 ===== */
+/* 存檔 */
 function saveToSlot(i) {
-    video.pause();
-
     const saveData = {
         scene: currentScene,
         title: story[currentScene].title,
-        time: video.currentTime,      // ⭐ 關鍵：存影片秒數
+        time: video.currentTime,
         thumbnail: captureThumbnail()
     };
-
     localStorage.setItem("save_" + i, JSON.stringify(saveData));
     closeMenus();
 }
 
-
-/* ===== 讀檔 ===== */
+/* 讀檔 */
 function loadFromSlot(i) {
     const data = localStorage.getItem("save_" + i);
     if (!data) return;
 
     const save = JSON.parse(data);
     closeMenus();
-
     loadScene(save.scene);
 
     video.onloadedmetadata = () => {
-        video.currentTime = save.time; // ⭐ 跳回存檔時間
+        video.currentTime = save.time;
         video.play();
     };
 }
 
-
-/* ===== 啟動 ===== */
-function loadScene(key) {
-    currentScene = key;
-    const scene = story[key];
-    video.src = scene.video;
-    options.style.display = "none";
-    document.getElementById("restart").style.display = "none";
-
-    video.onended = () => {
-        options.innerHTML = "";
-
-        // 🟥 如果是結局
-        if (scene.isEnd) {
-            document.getElementById("restart").style.display = "block";
-            return;
-        }
-
-        // 🟦 一般選項
-        scene.choices.forEach(c => {
-            const btn = document.createElement("button");
-            btn.textContent = c.text;
-            btn.onclick = () => loadScene(c.next);
-            options.appendChild(btn);
-        });
-
-        if (scene.choices.length) {
-            options.style.display = "flex";
-        }
-    };
+/* 回到開端 */
+function restartGame() {
+    loadScene("start");
 }
 
+/* 啟動 */
+loadScene("start");
 </script>
-    const video = document.getElementById("main-video");
-const options = document.getElementById("options");
-let currentScene = "start";
-let wasPlaying = false; // ⭐ 新增：記住影片是否在播放
-
-
 
 </body>
 </html>
+
