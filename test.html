@@ -1,12 +1,103 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset = "utf-8">
-    <title>。･ﾟ･互動視頻。･ﾟ･ 《未接來電》</title>
-    <link rel="icon" href="Screenshot_2025_1209_164830.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      .slots {
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>互動式影片小說</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+/* ===== 影片 ===== */
+#video-container {
+    position: fixed;
+    inset: 0;
+}
+
+#main-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: black;
+}
+
+/* ===== 選項 ===== */
+#options {
+    position: absolute;
+    bottom: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    gap: 20px;
+    z-index: 10;
+}
+
+#options button {
+    padding: 14px 32px;
+    border-radius: 30px;
+    background: rgba(0,0,0,0.65);
+    color: white;
+    border: 1px solid white;
+    cursor: pointer;
+}
+
+/* ===== 右側固定按鈕 ===== */
+#menu-btns {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#menu-btns button {
+    padding: 10px 18px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: 1px solid white;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+/* ===== Overlay ===== */
+.menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    z-index: 100;
+}
+
+.menu-box {
+    width: 80%;
+    max-width: 620px;
+    margin: 8% auto;
+    background: #111;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+}
+
+/* ===== 存檔格 ===== */
+.slots {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 15px;
@@ -14,8 +105,7 @@
 
 .slot {
     background: #000;
-    border: 1px solid #555;
-    padding: 5px;
+    border: 1px solid #444;
     cursor: pointer;
 }
 
@@ -29,191 +119,170 @@
 .slot p {
     font-size: 12px;
     text-align: center;
-    margin: 5px 0 0;
+    margin: 5px 0;
 }
-
-       html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background-color: black;
-    overflow: hidden;
-}
-
-/* 不需要再置中整個 body */
-body {
-    font-family: Arial, sans-serif;
-}
-
-/* 影片容器全螢幕 */
-#video-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-}
-
-/* 影片填滿畫面 */
-#main-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* 關鍵：不變形裁切 */
-    background-color: black;
-}
-
-/* 選項按鈕疊在影片上 */
-#options-container {
-    position: absolute;
-    bottom: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    display: none; /* 一開始隱藏 */
-    gap: 20px;
-    z-index: 10;
-}
-
-.choice-button {
-    padding: 14px 30px;
-    font-size: 18px;
-    cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: 1px solid white;
-    border-radius: 30px;
-    transition: all 0.3s;
-}
-
-.choice-button:hover {
-    background-color: white;
-    color: black;
-}
-
-    </style>
+</style>
 </head>
-<body>
-<div class="slots">
-    <div class="slot" onclick="saveToSlot(1)">
-        <img id="thumb-1">
-        <p id="title-1">空白存檔</p>
-    </div>
-    <div class="slot" onclick="saveToSlot(2)">
-        <img id="thumb-2">
-        <p id="title-2">空白存檔</p>
-    </div>
-    <div class="slot" onclick="saveToSlot(3)">
-        <img id="thumb-3">
-        <p id="title-3">空白存檔</p>
-    </div>
 
-    <!-- 重複到 9 格 -->
-    <!-- 4 ~ 9 -->
+<body>
+
+<div id="video-container">
+    <video id="main-video" autoplay></video>
+    <div id="options"></div>
+
+    <div id="menu-btns">
+        <button onclick="openSaveMenu()">存檔</button>
+        <button onclick="openLoadMenu()">讀檔</button>
+    </div>
 </div>
 
-    <div id="video-container">
-        <video id="main-video" controls autoplay>
-            您的瀏覽器不支援 HTML5 video 標籤。
-        </video>
-
-        <div id="options-container">
-            </div>
+<!-- 存檔畫面 -->
+<div id="save-menu" class="menu">
+    <div class="menu-box">
+        <span class="close" onclick="closeMenus()">✕</span>
+        <h2>存檔</h2>
+        <div id="save-slots" class="slots"></div>
     </div>
+</div>
 
-  
+<!-- 讀檔畫面 -->
+<div id="load-menu" class="menu">
+    <div class="menu-box">
+        <span class="close" onclick="closeMenus()">✕</span>
+        <h2>讀檔</h2>
+        <div id="load-slots" class="slots"></div>
+    </div>
+</div>
 
-</body>
-</html>
 <script>
-  const story = {
-  start: {
-    title: "未接來電",
-    video: "videos/scene1.mp4",
-    choices: [...]
-  },
-  reply: {
-    title: "回信給他",
-    video: "videos/scene2.mp4",
-    choices: [...]
-  }
+/* ===== 劇情資料 ===== */
+const story = {
+    start: {
+        title: "未接來電",
+        video: "videos/scene1.mp4",
+        choices: [
+            { text: "回信給他", next: "reply" },
+            { text: "忽略來電", next: "ignore" }
+        ]
+    },
+    reply: {
+        title: "回信給他",
+        video: "videos/scene2.mp4",
+        choices: []
+    },
+    ignore: {
+        title: "忽略來電",
+        video: "videos/scene3.mp4",
+        choices: []
+    }
 };
+
+const video = document.getElementById("main-video");
+const options = document.getElementById("options");
+let currentScene = "start";
+
+/* ===== 播放場景 ===== */
+function loadScene(key) {
+    currentScene = key;
+    const scene = story[key];
+    video.src = scene.video;
+    options.style.display = "none";
+
+    video.onended = () => {
+        options.innerHTML = "";
+        scene.choices.forEach(c => {
+            const btn = document.createElement("button");
+            btn.textContent = c.text;
+            btn.onclick = () => loadScene(c.next);
+            options.appendChild(btn);
+        });
+        if (scene.choices.length) options.style.display = "flex";
+    };
+}
+
+/* ===== 存讀介面 ===== */
+function openSaveMenu() {
+    generateSlots("save");
+    document.getElementById("save-menu").style.display = "block";
+}
+
+function openLoadMenu() {
+    generateSlots("load");
+    document.getElementById("load-menu").style.display = "block";
+}
+
+function closeMenus() {
+    document.getElementById("save-menu").style.display = "none";
+    document.getElementById("load-menu").style.display = "none";
+}
+
+/* ===== 自動生成 9 格 ===== */
+function generateSlots(type) {
+    const container = document.getElementById(type + "-slots");
+    container.innerHTML = "";
+
+    for (let i = 1; i <= 9; i++) {
+        const data = localStorage.getItem("save_" + i);
+        const slot = document.createElement("div");
+        slot.className = "slot";
+
+        const img = document.createElement("img");
+        const p = document.createElement("p");
+
+        if (data) {
+            const save = JSON.parse(data);
+            img.src = save.thumbnail;
+            p.innerText = save.title;
+        } else {
+            img.src = "";
+            p.innerText = "空白存檔";
+        }
+
+        slot.appendChild(img);
+        slot.appendChild(p);
+
+        slot.onclick = () => {
+            if (type === "save") saveToSlot(i);
+            else loadFromSlot(i);
+        };
+
+        container.appendChild(slot);
+    }
+}
+
+/* ===== 擷取畫面 ===== */
 function captureThumbnail() {
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+    canvas.getContext("2d").drawImage(video, 0, 0);
     return canvas.toDataURL("image/png");
 }
-function saveToSlot(slot) {
-    video.pause();
 
+/* ===== 存檔 ===== */
+function saveToSlot(i) {
+    video.pause();
     const saveData = {
         scene: currentScene,
         title: story[currentScene].title,
         thumbnail: captureThumbnail()
     };
-
-    localStorage.setItem("save_slot_" + slot, JSON.stringify(saveData));
-    updateSlotUI(slot, saveData);
-
+    localStorage.setItem("save_" + i, JSON.stringify(saveData));
     closeMenus();
 }
-function updateSlotUI(slot, data) {
-    document.getElementById("thumb-" + slot).src = data.thumbnail;
-    document.getElementById("title-" + slot).innerText = data.title;
-}
-function loadSaveSlots() {
-    for (let i = 1; i <= 9; i++) {
-        const saved = localStorage.getItem("save_slot_" + i);
-        if (saved) {
-            updateSlotUI(i, JSON.parse(saved));
-        }
-    }
-}
-function loadFromSlot(slot) {
-    const saved = localStorage.getItem("save_slot_" + slot);
-    if (!saved) return;
 
-    const data = JSON.parse(saved);
+/* ===== 讀檔 ===== */
+function loadFromSlot(i) {
+    const data = localStorage.getItem("save_" + i);
+    if (!data) return;
+    const save = JSON.parse(data);
     closeMenus();
-    loadScene(data.scene);
+    loadScene(save.scene);
 }
 
-const video = document.getElementById("main-video");
-const optionsContainer = document.getElementById("options-container");
-
-video.src = "videos/scene1.mp4";
-
-const choices = [
-    { text: "回信給他", next: "scene2.mp4" },
-    { text: "忽略這通來電", next: "scene3.mp4" }
-];
-
-optionsContainer.style.display = "none";
-
-video.addEventListener("ended", () => {
-    showChoices();
-});
-
-function showChoices() {
-    optionsContainer.innerHTML = "";
-    optionsContainer.style.display = "flex";
-
-    choices.forEach(choice => {
-        const btn = document.createElement("button");
-        btn.className = "choice-button";
-        btn.textContent = choice.text;
-        btn.onclick = () => playNext(choice.next);
-        optionsContainer.appendChild(btn);
-    });
-}
-
-function playNext(videoFile) {
-    optionsContainer.style.display = "none";
-    video.src = "videos/" + videoFile;
-    video.play();
-}
+/* ===== 啟動 ===== */
+loadScene(currentScene);
 </script>
+
+</body>
+</html>
