@@ -172,9 +172,26 @@ html, body {
 <script>
 /* ===== 劇情資料（換影片只改這裡）===== */
 const story = {
+
+    /* ===== 結局區 ===== */
+    ignore: {
+        title: "無法停留的人間",
+        video: "end喧囂.mp4",
+        choices: [],
+        isEnd: true
+    },
+
+    only_you: {
+        title: "落單",
+        video: "end落單.mp4",
+        choices: [],
+        isEnd: true
+    },
+
+    /* ===== 主線 ===== */
     start: {
         title: "開端",
-        video: "開端.mp4",   // ← 你的影片檔名
+        video: "開端.mp4",
         choices: [
             { text: "上前詢問", next: "reply" },
             { text: "不管了，還是回家吧……", next: "ignore" }
@@ -183,36 +200,45 @@ const story = {
 
     reply: {
         title: "初次見面",
-        video: "搭話.mp4",  // ← 換成你的影片
-        choices: [{ text: "好的", next: "yes" },
-            { text: "不去", next: "no" }]
+        video: "搭話.mp4",
+        choices: [
+            { text: "好的", next: "yes" },
+            { text: "不去", next: "no" }
+        ]
     },
 
-    ignore: {
-        title: "無法停留的人間",
-        video: "end喧囂.mp4",  // ← 結局影片
+    /* ===== 支線 ===== */
+    no: {
+        title: "艾爾的邀約",
+        video: "蛋糕店.mp4",
+        choices: [
+            { text: "答應他", next: "go" },
+            { text: "拒絕他", next: "dont_go" }
+        ]
+    },
+
+    dont_go: {
+        title: "拒絕",
+        video: "拒絕.mp4",
+        choices: [],
+        nextScene: "only_you"
+    },
+
+    /* ===== 預留 ===== */
+    yes: {
+        title: "（預留）",
+        video: "搭話.mp4",
+        choices: [],
+        isEnd: true
+    },
+
+    go: {
+        title: "（預留）",
+        video: "蛋糕店.mp4",
         choices: [],
         isEnd: true
     }
 };
-    no: {
-        title: "艾爾的邀約",
-        video: "蛋糕店.mp4",  // ← 換成你的影片
-        choices: [{ text: "答應他", next: "go" },
-            { text: "拒絕他", next: "dont go" }]
-    },
-    dont go: {
-        title: "艾爾的邀約",
-        video: "拒絕.mp4",  //
-        choices: [],
-        nextScene: "only you"
-    }
-    only you: {
-        title: "落單",
-        video: "end落單.mp4",  // ← 結局影片
-        choices: [],
-        isEnd: true
-    }
 /* ===== 系統 ===== */
 const video = document.getElementById("main-video");
 const options = document.getElementById("options");
