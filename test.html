@@ -195,7 +195,18 @@ const story = {
         isEnd: true
     }
 };
-
+    no: {
+        title: "艾爾的邀約",
+        video: "蛋糕店.mp4",  // ← 換成你的影片
+        choices: [{ text: "答應他", next: "go" },
+            { text: "拒絕他", next: "dont go" }]
+    },
+    dont go: {
+        title: "艾爾的邀約",
+        video: "拒絕.mp4",  //
+        choices: [],
+        nextScene: "end落單.mp4"
+    }
 /* ===== 系統 ===== */
 const video = document.getElementById("main-video");
 const options = document.getElementById("options");
@@ -211,25 +222,33 @@ function loadScene(key) {
     document.getElementById("restart").style.display = "none";
 
     video.onended = () => {
-        options.innerHTML = "";
+    options.innerHTML = "";
 
-        if (scene.isEnd) {
-            document.getElementById("restart").style.display = "block";
-            return;
-        }
+    // ⭐ 如果是結局
+    if (scene.isEnd) {
+        document.getElementById("restart").style.display = "block";
+        return;
+    }
 
-        scene.choices.forEach(c => {
-            const btn = document.createElement("button");
-            btn.textContent = c.text;
-            btn.onclick = () => loadScene(c.next);
-            options.appendChild(btn);
-        });
+    // ⭐ 如果沒有選項，但有指定下一段 → 自動播放
+    if (scene.choices.length === 0 && scene.nextScene) {
+        loadScene(scene.nextScene);
+        return;
+    }
 
-        if (scene.choices.length) {
-            options.style.display = "flex";
-        }
-    };
-}
+    // ⭐ 一般情況：顯示選項
+    scene.choices.forEach(c => {
+        const btn = document.createElement("button");
+        btn.textContent = c.text;
+        btn.onclick = () => loadScene(c.next);
+        options.appendChild(btn);
+    });
+
+    if (scene.choices.length) {
+        options.style.display = "flex";
+    }
+};
+
 
 /* 存讀介面 */
 function openSaveMenu() {
