@@ -232,7 +232,28 @@ const story = {
         choices: [],
         nextScene: "only_you" // 沒選項 → 自動接結局
     },
+    
+    go: {
+        title: "期待的明日",
+        video: "一起去.mp4",
+        choices: [],
+        nextScene: "make_cake"
+    },
 
+    make_cake: {
+        title: "甜點時光",
+        video: "做蛋糕.mp4",
+        choices: [],
+        nextScene: "eat_cake"
+    },
+
+    eat_cake: {
+        title: "奶油與心跳",
+        video: "做蛋糕.mp4",
+        choices: [],
+        nextScene: "eat_cake"
+    },
+    
     /* ===== 尚未製作的預留段落 ===== */
     yes: {
         title: "（預留）",
@@ -241,12 +262,6 @@ const story = {
         isEnd: true
     },
 
-    go: {
-        title: "（預留）",
-        video: "蛋糕店.mp4",
-        choices: [],
-        isEnd: true
-    }
 };
 
 /* =================================================
