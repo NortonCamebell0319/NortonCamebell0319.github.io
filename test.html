@@ -259,7 +259,17 @@ const story = {
         title: "甜點時光",
         video: "做蛋糕.mp4",
         choices: [],
-        isEnd: true
+        nextScene: "eat_cake"
+    },
+   
+   eat_cake: {
+        title: "奶油與心跳",
+        video: "吃蛋糕.mp4",
+        choices: [
+           { text: "自己搭地鐵", next: "the_blood" },
+           { text: "讓艾爾送你", next: "talking" }
+        ],
+        nextScene: "eat_cake"
     },
 
     yes: {
