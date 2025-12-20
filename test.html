@@ -6,7 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== 基本畫面設定 ===== */
+/* =================================================
+   基本畫面設定
+================================================= */
 html, body {
     margin: 0;
     width: 100%;
@@ -16,27 +18,35 @@ html, body {
     font-family: Arial, sans-serif;
 }
 
-/* ===== 影片容器 ===== */
+/* =================================================
+   影片容器
+================================================= */
 #video-container {
     position: fixed;
     inset: 0;
 }
 
-/* 主影片 */
+/* =================================================
+   主影片
+   ★ 使用 contain，確保 4:3 影片完整顯示
+   ★ 黑邊由背景補上
+================================================= */
 #main-video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     background: black;
 }
 
-/* ===== 選項按鈕 ===== */
+/* =================================================
+   選項按鈕區
+================================================= */
 #options {
     position: absolute;
     bottom: 12%;
     left: 50%;
     transform: translateX(-50%);
-    display: none; /* 一開始不顯示 */
+    display: none;
     gap: 20px;
     z-index: 10;
 }
@@ -50,7 +60,9 @@ html, body {
     cursor: pointer;
 }
 
-/* ===== 右側功能鍵（存檔 / 讀檔）===== */
+/* =================================================
+   右側功能鍵（存檔 / 讀檔）
+================================================= */
 #menu-btns {
     position: fixed;
     right: 20px;
@@ -71,7 +83,9 @@ html, body {
     cursor: pointer;
 }
 
-/* ===== 結局用「回到開端」===== */
+/* =================================================
+   結局用「回到開端」
+================================================= */
 #restart {
     position: absolute;
     bottom: 12%;
@@ -81,7 +95,9 @@ html, body {
     z-index: 20;
 }
 
-/* ===== 存檔 / 讀檔遮罩 ===== */
+/* =================================================
+   存檔 / 讀檔遮罩
+================================================= */
 .menu {
     position: fixed;
     inset: 0;
@@ -108,7 +124,9 @@ html, body {
     cursor: pointer;
 }
 
-/* ===== 存檔格 ===== */
+/* =================================================
+   存檔格
+================================================= */
 .slots {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -139,25 +157,26 @@ html, body {
 <body>
 
 <div id="video-container">
+
     <!-- 主影片播放器 -->
     <video id="main-video" autoplay playsinline></video>
 
-    <!-- 選項容器 -->
+    <!-- 選項區 -->
     <div id="options"></div>
 
-    <!-- 右側功能鍵 -->
+    <!-- 功能鍵 -->
     <div id="menu-btns">
         <button onclick="openSaveMenu()">存檔</button>
         <button onclick="openLoadMenu()">讀檔</button>
     </div>
 
-    <!-- 結局出現 -->
+    <!-- 結局 -->
     <div id="restart">
         <button onclick="restartGame()">回到開端</button>
     </div>
 </div>
 
-<!-- ===== 存檔畫面 ===== -->
+<!-- ================= 存檔畫面 ================= -->
 <div id="save-menu" class="menu">
     <div class="menu-box">
         <span class="close" onclick="closeMenus()">✕</span>
@@ -166,7 +185,7 @@ html, body {
     </div>
 </div>
 
-<!-- ===== 讀檔畫面 ===== -->
+<!-- ================= 讀檔畫面 ================= -->
 <div id="load-menu" class="menu">
     <div class="menu-box">
         <span class="close" onclick="closeMenus()">✕</span>
@@ -177,12 +196,10 @@ html, body {
 
 <script>
 /* =================================================
-   劇情資料區
-   👉 之後你「只需要改這裡」
+   劇情資料（你之後只需要改這一區）
 ================================================= */
 const story = {
 
-    /* ===== 結局 ===== */
     ignore: {
         title: "無法停留的人間",
         video: "end喧囂.mp4",
@@ -197,7 +214,6 @@ const story = {
         isEnd: true
     },
 
-    /* ===== 主線 ===== */
     start: {
         title: "開端",
         video: "開端.mp4",
@@ -216,7 +232,6 @@ const story = {
         ]
     },
 
-    /* ===== 支線 ===== */
     no: {
         title: "艾爾的邀約",
         video: "蛋糕店.mp4",
@@ -230,9 +245,9 @@ const story = {
         title: "拒絕",
         video: "拒絕.mp4",
         choices: [],
-        nextScene: "only_you" // 沒選項 → 自動接結局
+        nextScene: "only_you"
     },
-    
+
     go: {
         title: "期待的明日",
         video: "一起去.mp4",
@@ -244,24 +259,15 @@ const story = {
         title: "甜點時光",
         video: "做蛋糕.mp4",
         choices: [],
-        nextScene: "eat_cake"
+        isEnd: true
     },
 
-    eat_cake: {
-        title: "奶油與心跳",
-        video: "做蛋糕.mp4",
-        choices: [],
-        nextScene: "eat_cake"
-    },
-    
-    /* ===== 尚未製作的預留段落 ===== */
     yes: {
         title: "（預留）",
         video: "搭話.mp4",
         choices: [],
         isEnd: true
-    },
-
+    }
 };
 
 /* =================================================
@@ -281,28 +287,29 @@ function loadScene(key) {
 
     // 換影片
     video.src = scene.video;
+    video.load();
 
-    // 隱藏 UI
+    // 重置 UI
+    options.innerHTML = "";
     options.style.display = "none";
     document.getElementById("restart").style.display = "none";
 
-    // 影片播完後要做的事
+    // 影片播完後
     video.onended = () => {
-        options.innerHTML = "";
 
-        // 結局 → 顯示回到開端
+        // 結局處理
         if (scene.isEnd) {
             document.getElementById("restart").style.display = "block";
             return;
         }
 
-        // 沒選項但有指定下一段 → 自動播放
+        // 無選項但指定下一段 → 自動跳
         if (scene.choices.length === 0 && scene.nextScene) {
             loadScene(scene.nextScene);
             return;
         }
 
-        // 一般情況 → 顯示選項
+        // 顯示選項
         scene.choices.forEach(c => {
             const btn = document.createElement("button");
             btn.textContent = c.text;
@@ -315,7 +322,7 @@ function loadScene(key) {
 }
 
 /* =================================================
-   存檔 / 讀檔系統
+   存檔 / 讀檔 UI
 ================================================= */
 function openSaveMenu() {
     wasPlaying = !video.paused;
@@ -362,18 +369,14 @@ function generateSlots(type) {
 
         slot.appendChild(img);
         slot.appendChild(p);
-
-        slot.onclick = () => {
-            if (type === "save") saveToSlot(i);
-            else loadFromSlot(i);
-        };
+        slot.onclick = () => type === "save" ? saveToSlot(i) : loadFromSlot(i);
 
         container.appendChild(slot);
     }
 }
 
 /* =================================================
-   存檔 / 讀檔實作
+   存檔實作（含手機端保險）
 ================================================= */
 function captureThumbnail() {
     const canvas = document.createElement("canvas");
@@ -384,16 +387,27 @@ function captureThumbnail() {
 }
 
 function saveToSlot(i) {
+
+    // 若影片尚未 ready，等載好再存（避免黑畫面）
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+        video.onloadeddata = () => saveToSlot(i);
+        return;
+    }
+
     const saveData = {
         scene: currentScene,
         title: story[currentScene].title,
         time: video.currentTime,
         thumbnail: captureThumbnail()
     };
+
     localStorage.setItem("save_" + i, JSON.stringify(saveData));
     closeMenus();
 }
 
+/* =================================================
+   讀檔實作
+================================================= */
 function loadFromSlot(i) {
     const data = localStorage.getItem("save_" + i);
     if (!data) return;
@@ -415,7 +429,7 @@ function restartGame() {
     loadScene("start");
 }
 
-/* 啟動遊戲 */
+/* 啟動 */
 loadScene("start");
 </script>
 
