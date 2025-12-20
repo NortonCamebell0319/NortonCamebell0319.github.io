@@ -296,8 +296,12 @@ function loadScene(key) {
     const scene = story[key];
 
     // 換影片
-    video.src = scene.video;
-    video.load();
+    // ===== 換影片（完整重置播放器）=====
+video.pause();              // 先暫停，避免繼承狀態
+video.src = scene.video;    // 指定新影片
+video.load();               // 強制重新載入
+video.currentTime = 0;      // 從 0 秒開始
+video.play();               // 再播放
 
     // 重置 UI
     options.innerHTML = "";
@@ -388,31 +392,36 @@ function generateSlots(type) {
 /* =================================================
    存檔實作（含手機端保險）
 ================================================= */
+/* =================================================
+   擷取存檔縮圖（安全版）
+   👉 即使影片尚未準備好，也不會讓存檔失敗
+================================================= */
 function captureThumbnail() {
+    // 如果影片尺寸還沒準備好，回傳空白圖
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+        return "";
+    }
+
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    canvas.getContext("2d").drawImage(video, 0, 0);
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
     return canvas.toDataURL("image/png");
 }
-
 function saveToSlot(i) {
-
-    // 若影片尚未 ready，等載好再存（避免黑畫面）
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
-        video.onloadeddata = () => saveToSlot(i);
-        return;
-    }
-
     const saveData = {
         scene: currentScene,
         title: story[currentScene].title,
-        time: video.currentTime,
+        time: video.currentTime || 0, // 保底
         thumbnail: captureThumbnail()
     };
 
     localStorage.setItem("save_" + i, JSON.stringify(saveData));
     closeMenus();
+}
 }
 
 /* =================================================
