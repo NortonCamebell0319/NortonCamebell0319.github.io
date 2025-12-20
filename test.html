@@ -269,7 +269,6 @@ const story = {
            { text: "自己搭地鐵", next: "the_blood" },
            { text: "讓艾爾送你", next: "talking" }
         ],
-        nextScene: "eat_cake"
     },
 
     yes: {
@@ -421,7 +420,6 @@ function saveToSlot(i) {
 
     localStorage.setItem("save_" + i, JSON.stringify(saveData));
     closeMenus();
-}
 }
 
 /* =================================================
