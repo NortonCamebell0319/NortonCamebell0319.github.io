@@ -282,9 +282,18 @@ const story = {
         title: "你的主動",
         video: "一起回家.mp4",
         choices: [
-           { text: "提及童年", next: "" },
+           { text: "提及童年", next: "mother" },
            { text: "提及小貓", next: "" },
            { text: "沉默", next: "" }
+        ],
+    },
+
+   mother: {
+        title: "對童年的聆聽",
+        video: "童年的評價.mp4",
+        choices: [
+           { text: "母親都是為了你好", next: "" },
+           { text: "以後都有我在", next: "" },
         ],
     },
 
