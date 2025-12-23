@@ -4,7 +4,12 @@
 <meta charset="utf-8">
 <title>。･ﾟ･互動視頻。･ﾟ･ 《未接來電》</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="Screenshot_2025_1209_164830.png">
+
+<!-- =================================================
+   🔧 網頁 icon（可以用 png / webp / ico）
+   👉 換成你自己的圖
+================================================= -->
+<link rel="icon" href="icon.png">
 
 <style>
 /* =================================================
@@ -20,18 +25,68 @@ html, body {
 }
 
 /* =================================================
+   共用遮罩（主選單 / 成就 / 存讀檔）
+================================================= */
+.menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    z-index: 100;
+}
+
+.menu.show {
+    display: block;
+}
+
+/* =================================================
+   主選單背景
+================================================= */
+.menu-bg {
+    position: absolute;
+    inset: 0;
+
+    /* 🔧 主選單背景圖在這裡換 */
+    background-image: url("menu_bg.jpg");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.9;
+}
+
+/* =================================================
+   主選單按鈕（中央＋大）
+================================================= */
+.menu-buttons {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    z-index: 10;
+}
+
+.menu-buttons button {
+    width: 320px;
+    padding: 22px;
+    font-size: 22px;
+    border-radius: 40px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: 2px solid white;
+    cursor: pointer;
+}
+
+/* =================================================
    影片容器
 ================================================= */
 #video-container {
     position: fixed;
     inset: 0;
+    display: none; /* 一開始不顯示 */
 }
 
-/* =================================================
-   主影片
-   ★ 使用 contain，確保 4:3 影片完整顯示
-   ★ 黑邊由背景補上
-================================================= */
 #main-video {
     width: 100%;
     height: 100%;
@@ -40,7 +95,7 @@ html, body {
 }
 
 /* =================================================
-   選項按鈕區
+   選項按鈕
 ================================================= */
 #options {
     position: absolute;
@@ -62,7 +117,7 @@ html, body {
 }
 
 /* =================================================
-   右側功能鍵（存檔 / 讀檔）
+   側邊功能鍵
 ================================================= */
 #menu-btns {
     position: fixed;
@@ -85,231 +140,104 @@ html, body {
 }
 
 /* =================================================
-   結局用「回到開端」
+   成就 / 存讀檔 盒子
 ================================================= */
-#restart {
-    position: absolute;
-    bottom: 12%;
-    left: 50%;
-    transform: translateX(-50%);
-    display: none;
-    z-index: 20;
-}
-
-/* =================================================
-   存檔 / 讀檔遮罩
-================================================= */
-.menu {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    display: none;
-    z-index: 100;
-}
-
 .menu-box {
     width: 80%;
-    max-width: 620px;
+    max-width: 640px;
     margin: 8% auto;
     background: #111;
     color: white;
-    padding: 20px;
-    border-radius: 12px;
+    padding: 24px;
+    border-radius: 14px;
     position: relative;
 }
 
 .close {
     position: absolute;
     top: 10px;
-    right: 15px;
+    right: 16px;
     cursor: pointer;
 }
 
 /* =================================================
-   存檔格
+   成就列表
 ================================================= */
-.slots {
+#achievement-list {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
 }
 
-.slot {
-    background: #000;
+.achievement {
     border: 1px solid #444;
-    cursor: pointer;
-}
-
-.slot img {
-    width: 100%;
-    height: 80px;
-    object-fit: cover;
-    background: #222;
-}
-
-.slot p {
-    font-size: 12px;
+    padding: 14px;
     text-align: center;
-    margin: 5px 0;
+    background: #000;
 }
 </style>
 </head>
 
 <body>
 
+<!-- ================= 主選單 ================= -->
+<div id="main-menu" class="menu show">
+    <div class="menu-bg"></div>
+
+    <div class="menu-buttons">
+        <button onclick="startGame()">▶ 主線開始</button>
+        <button onclick="startExtra()">☆ 番外</button>
+        <button onclick="openAchievements()">🏆 結局蒐集</button>
+    </div>
+</div>
+
+<!-- ================= 成就介面 ================= -->
+<div id="achievement-menu" class="menu">
+    <div class="menu-box">
+        <span class="close" onclick="closeAchievements()">✕</span>
+        <h2>結局蒐集</h2>
+        <div id="achievement-list"></div>
+    </div>
+</div>
+
+<!-- ================= 遊戲本體 ================= -->
 <div id="video-container">
 
-    <!-- 主影片播放器 -->
     <video id="main-video" autoplay playsinline></video>
 
-    <!-- 選項區 -->
     <div id="options"></div>
 
-    <!-- 功能鍵 -->
     <div id="menu-btns">
         <button onclick="openSaveMenu()">存檔</button>
         <button onclick="openLoadMenu()">讀檔</button>
-    </div>
-
-    <!-- 結局 -->
-    <div id="restart">
-        <button onclick="restartGame()">回到開端</button>
-    </div>
-</div>
-
-<!-- ================= 存檔畫面 ================= -->
-<div id="save-menu" class="menu">
-    <div class="menu-box">
-        <span class="close" onclick="closeMenus()">✕</span>
-        <h2>存檔</h2>
-        <div id="save-slots" class="slots"></div>
-    </div>
-</div>
-
-<!-- ================= 讀檔畫面 ================= -->
-<div id="load-menu" class="menu">
-    <div class="menu-box">
-        <span class="close" onclick="closeMenus()">✕</span>
-        <h2>讀檔</h2>
-        <div id="load-slots" class="slots"></div>
     </div>
 </div>
 
 <script>
 /* =================================================
-   劇情資料（你之後只需要改這一區）
+   🔧 結局表（新增結局只要加在這）
 ================================================= */
-const story = {
-
-   const endings = {
+const endings = {
     ignore: "無法停留的人間",
     only_you: "落單",
     the_blood: "再也逃離不了的惡夢"
 };
 
-
-    ignore: {
-        title: "無法停留的人間",
-        video: "end喧囂.mp4",
-        choices: [],
-        isEnd: true
-    },
-
-    only_you: {
-        title: "落單",
-        video: "end落單.mp4",
-        choices: [],
-        isEnd: true
-    },
-
-   the_blood: {
-        title: "再也逃離不了的惡夢",
-        video: "end血色的呻吟.mp4",
-        choices: [],
-        isEnd: true
-    },
+/* =================================================
+   🔧 劇情資料（你之後主要改這裡）
+================================================= */
+const story = {
+    ignore: { title: endings.ignore, video: "end1.mp4", choices: [], isEnd: true },
+    only_you: { title: endings.only_you, video: "end2.mp4", choices: [], isEnd: true },
+    the_blood: { title: endings.the_blood, video: "end3.mp4", choices: [], isEnd: true },
 
     start: {
         title: "開端",
-        video: "開端.mp4",
+        video: "start.mp4",
         choices: [
-            { text: "上前詢問", next: "reply" },
-            { text: "不管了，還是回家吧……", next: "ignore" }
+            { text: "上前詢問", next: "ignore" },
+            { text: "回家", next: "only_you" }
         ]
-    },
-
-    reply: {
-        title: "初次見面",
-        video: "搭話.mp4",
-        choices: [
-            { text: "好的", next: "yes" },
-            { text: "不去", next: "no" }
-        ]
-    },
-
-    no: {
-        title: "艾爾的邀約",
-        video: "蛋糕店.mp4",
-        choices: [
-            { text: "答應他", next: "go" },
-            { text: "拒絕他", next: "dont_go" }
-        ]
-    },
-
-    dont_go: {
-        title: "拒絕",
-        video: "拒絕.mp4",
-        choices: [],
-        nextScene: "only_you"
-    },
-
-    go: {
-        title: "期待的明日",
-        video: "一起去.mp4",
-        choices: [],
-        nextScene: "make_cake"
-    },
-
-    make_cake: {
-        title: "甜點時光",
-        video: "做蛋糕.mp4",
-        choices: [],
-        nextScene: "eat_cake"
-    },
-   
-   eat_cake: {
-        title: "奶油與心跳",
-        video: "吃蛋糕.mp4",
-        choices: [
-           { text: "自己搭地鐵", next: "the_blood" },
-           { text: "讓艾爾送你", next: "talking" }
-        ],
-    },
-   
-   talking: {
-        title: "你的主動",
-        video: "一起回家.mp4",
-        choices: [
-           { text: "提及童年", next: "mother" },
-           { text: "提及小貓", next: "cat" },
-           { text: "沉默", next: "quiet" }
-        ],
-    },
-
-   mother: {
-        title: "對童年的聆聽",
-        video: "童年的評價.mp4",
-        choices: [
-           { text: "母親都是為了你好", next: "best_choice" },
-           { text: "以後都有我在", next: "i_will_by_your_side" },
-        ],
-    },
-
-    yes: {
-        title: "（預留）",
-        video: "搭話.mp4",
-        choices: [],
-        isEnd: true
     }
 };
 
@@ -319,44 +247,76 @@ const story = {
 const video = document.getElementById("main-video");
 const options = document.getElementById("options");
 let currentScene = "start";
-let wasPlaying = false;
 
 /* =================================================
-   載入並播放場景
+   主選單控制
+================================================= */
+function startGame() {
+    document.getElementById("main-menu").style.display = "none";
+    document.getElementById("video-container").style.display = "block";
+    loadScene("start");
+}
+
+function startExtra() {
+    alert("番外之後接 ♡");
+}
+
+/* =================================================
+   成就系統
+================================================= */
+function openAchievements() {
+    const list = document.getElementById("achievement-list");
+    list.innerHTML = "";
+
+    const unlocked = JSON.parse(localStorage.getItem("endings")) || [];
+
+    for (let key in endings) {
+        const div = document.createElement("div");
+        div.className = "achievement";
+        div.textContent = unlocked.includes(key) ? endings[key] : "???";
+        list.appendChild(div);
+    }
+
+    document.getElementById("achievement-menu").style.display = "block";
+}
+
+function closeAchievements() {
+    document.getElementById("achievement-menu").style.display = "none";
+}
+
+/* =================================================
+   解鎖結局
+================================================= */
+function unlockEnding(key) {
+    let unlocked = JSON.parse(localStorage.getItem("endings")) || [];
+    if (!unlocked.includes(key)) {
+        unlocked.push(key);
+        localStorage.setItem("endings", JSON.stringify(unlocked));
+    }
+}
+
+/* =================================================
+   播放場景
 ================================================= */
 function loadScene(key) {
     currentScene = key;
     const scene = story[key];
 
-    // 換影片
-    // ===== 換影片（完整重置播放器）=====
-video.pause();              // 先暫停，避免繼承狀態
-video.src = scene.video;    // 指定新影片
-video.load();               // 強制重新載入
-video.currentTime = 0;      // 從 0 秒開始
-video.play();               // 再播放
+    video.src = scene.video;
+    video.load();
+    video.play();
 
-    // 重置 UI
     options.innerHTML = "";
     options.style.display = "none";
-    document.getElementById("restart").style.display = "none";
 
-    // 影片播完後
     video.onended = () => {
-
-        // 結局處理
         if (scene.isEnd) {
-            document.getElementById("restart").style.display = "block";
+            unlockEnding(key);
+            document.getElementById("main-menu").style.display = "block";
+            document.getElementById("video-container").style.display = "none";
             return;
         }
 
-        // 無選項但指定下一段 → 自動跳
-        if (scene.choices.length === 0 && scene.nextScene) {
-            loadScene(scene.nextScene);
-            return;
-        }
-
-        // 顯示選項
         scene.choices.forEach(c => {
             const btn = document.createElement("button");
             btn.textContent = c.text;
@@ -367,121 +327,6 @@ video.play();               // 再播放
         options.style.display = "flex";
     };
 }
-
-/* =================================================
-   存檔 / 讀檔 UI
-================================================= */
-function openSaveMenu() {
-    wasPlaying = !video.paused;
-    video.pause();
-    generateSlots("save");
-    document.getElementById("save-menu").style.display = "block";
-}
-
-function openLoadMenu() {
-    wasPlaying = !video.paused;
-    video.pause();
-    generateSlots("load");
-    document.getElementById("load-menu").style.display = "block";
-}
-
-function closeMenus() {
-    document.getElementById("save-menu").style.display = "none";
-    document.getElementById("load-menu").style.display = "none";
-    if (wasPlaying) video.play();
-}
-
-/* =================================================
-   存檔格生成
-================================================= */
-function generateSlots(type) {
-    const container = document.getElementById(type + "-slots");
-    container.innerHTML = "";
-
-    for (let i = 1; i <= 9; i++) {
-        const data = localStorage.getItem("save_" + i);
-        const slot = document.createElement("div");
-        slot.className = "slot";
-
-        const img = document.createElement("img");
-        const p = document.createElement("p");
-
-        if (data) {
-            const save = JSON.parse(data);
-            img.src = save.thumbnail;
-            p.innerText = save.title;
-        } else {
-            p.innerText = "空白存檔";
-        }
-
-        slot.appendChild(img);
-        slot.appendChild(p);
-        slot.onclick = () => type === "save" ? saveToSlot(i) : loadFromSlot(i);
-
-        container.appendChild(slot);
-    }
-}
-
-/* =================================================
-   存檔實作（含手機端保險）
-================================================= */
-/* =================================================
-   擷取存檔縮圖（安全版）
-   👉 即使影片尚未準備好，也不會讓存檔失敗
-================================================= */
-function captureThumbnail() {
-    // 如果影片尺寸還沒準備好，回傳空白圖
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
-        return "";
-    }
-
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-
-    return canvas.toDataURL("image/png");
-}
-function saveToSlot(i) {
-    const saveData = {
-        scene: currentScene,
-        title: story[currentScene].title,
-        time: video.currentTime || 0, // 保底
-        thumbnail: captureThumbnail()
-    };
-
-    localStorage.setItem("save_" + i, JSON.stringify(saveData));
-    closeMenus();
-}
-
-/* =================================================
-   讀檔實作
-================================================= */
-function loadFromSlot(i) {
-    const data = localStorage.getItem("save_" + i);
-    if (!data) return;
-
-    const save = JSON.parse(data);
-    closeMenus();
-    loadScene(save.scene);
-
-    video.onloadedmetadata = () => {
-        video.currentTime = save.time;
-        video.play();
-    };
-}
-
-/* =================================================
-   回到開端
-================================================= */
-function restartGame() {
-    loadScene("start");
-}
-
-/* 啟動 */
-loadScene("start");
 </script>
 
 </body>
