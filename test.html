@@ -320,15 +320,48 @@ function loadScene(key) {
     currentScene = key;
     const scene = story[key];
 
-    // 換影片
-    // ===== 換影片（完整重置播放器）=====
-video.pause();              // 先暫停，避免繼承狀態
-video.src = scene.video;    // 指定新影片
-video.load();               // 強制重新載入
-video.currentTime = 0;      // 從 0 秒開始
-video.play().catch(() => {
-    // 瀏覽器阻擋自動播放時，什麼都不做
-});
+    // 先停止舊影片
+    video.pause();
+    video.removeAttribute("src"); // 🔴 很重要，清乾淨
+    video.load();
+
+    // 指定新影片
+    video.src = scene.video;
+    video.load();
+
+    // UI 重置
+    options.innerHTML = "";
+    options.style.display = "none";
+    document.getElementById("restart").style.display = "none";
+
+    // ✅ 等 metadata 載好再播
+    video.onloadedmetadata = () => {
+        video.currentTime = 0;
+        video.play();
+    };
+
+    // 播放結束
+    video.onended = () => {
+        if (scene.isEnd) {
+            document.getElementById("restart").style.display = "block";
+            return;
+        }
+
+        if (scene.choices.length === 0 && scene.nextScene) {
+            loadScene(scene.nextScene);
+            return;
+        }
+
+        scene.choices.forEach(c => {
+            const btn = document.createElement("button");
+            btn.textContent = c.text;
+            btn.onclick = () => loadScene(c.next);
+            options.appendChild(btn);
+        });
+
+        options.style.display = "flex";
+    };
+}
                // 再播放
 
     // 重置 UI
