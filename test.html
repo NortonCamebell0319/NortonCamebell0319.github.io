@@ -2,14 +2,8 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<title>。･ﾟ･互動視頻。･ﾟ･ 《未接來電》</title>
+<title>《未接來電》</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- =================================================
-   🔧 網頁 icon（可用 png / webp / ico）
-   👉 換成你自己的圖
-================================================= -->
-<link rel="icon" href="Screenshot_2025_1209_164830.png">
 
 <style>
 html, body {
@@ -21,7 +15,6 @@ html, body {
     font-family: Arial, sans-serif;
 }
 
-/* ================= 共用遮罩 ================= */
 .menu {
     position: fixed;
     inset: 0;
@@ -31,17 +24,6 @@ html, body {
 }
 .menu.show { display: block; }
 
-/* ================= 主選單 ================= */
-.menu-bg {
-    position: absolute;
-    inset: 0;
-
-    /* 🔧 主選單背景圖在這裡換 */
-    background-image: url("menu_bg.jpg");
-    background-size: cover;
-    background-position: center;
-}
-
 .menu-buttons {
     position: absolute;
     top: 50%;
@@ -49,32 +31,23 @@ html, body {
     transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
-    gap: 26px;
+    gap: 24px;
 }
-
 .menu-buttons button {
-    width: 320px;
-    padding: 22px;
+    width: 300px;
+    padding: 20px;
     font-size: 22px;
-    border-radius: 40px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border: 2px solid white;
-    cursor: pointer;
 }
 
-/* ================= 遊戲畫面 ================= */
 #video-container {
     position: fixed;
     inset: 0;
     display: none;
 }
-
 #main-video {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: black;
 }
 
 #options {
@@ -85,262 +58,85 @@ html, body {
     display: none;
     gap: 20px;
 }
-
-#options button {
-    padding: 14px 32px;
-    border-radius: 30px;
-    background: rgba(0,0,0,0.65);
-    color: white;
-    border: 1px solid white;
-    cursor: pointer;
-}
-
-/* ================= 側邊按鈕 ================= */
-#menu-btns {
-    position: fixed;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-#menu-btns button {
-    padding: 10px 18px;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    border: 1px solid white;
-    border-radius: 20px;
-    cursor: pointer;
-}
-
-/* ================= 視窗盒 ================= */
-.menu-box {
-    width: 80%;
-    max-width: 640px;
-    margin: 8% auto;
-    background: #111;
-    color: white;
-    padding: 24px;
-    border-radius: 14px;
-    position: relative;
-}
-
-.close {
-    position: absolute;
-    top: 10px;
-    right: 16px;
-    cursor: pointer;
-}
-
-#achievement-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-}
-
-.achievement {
-    border: 1px solid #444;
-    padding: 14px;
-    background: #000;
-    text-align: center;
-}
 </style>
 </head>
 
 <body>
 
-<!-- ================= 主選單 ================= -->
+<!-- 主選單 -->
 <div id="main-menu" class="menu show">
-    <div class="menu-bg"></div>
     <div class="menu-buttons">
         <button onclick="startGame()">▶ 主線開始</button>
-        <button onclick="startExtra()">☆ 番外</button>
-        <button onclick="openAchievements()">🏆 結局蒐集</button>
     </div>
 </div>
 
-<!-- ================= 成就 ================= -->
-<div id="achievement-menu" class="menu">
-    <div class="menu-box">
-        <span class="close" onclick="closeAchievements()">✕</span>
-        <h2>結局蒐集</h2>
-        <div id="achievement-list"></div>
-    </div>
-</div>
-
-<!-- ================= 遊戲 ================= -->
+<!-- 遊戲 -->
 <div id="video-container">
-    <video id="main-video" autoplay playsinline></video>
+    <video id="main-video" playsinline></video>
     <div id="options"></div>
 
-    <div id="menu-btns">
-        <button onclick="openSaveMenu()">存檔</button>
-        <button onclick="openLoadMenu()">讀檔</button>
-    </div>
-
-    <button id="restart" onclick="backToMenu()" style="
-        position:absolute;top:20px;left:20px;display:none;">
-        回主選單
-    </button>
-</div>
-
-<!-- ================= 存檔 / 讀檔 ================= -->
-<div id="save-menu" class="menu">
-    <div class="menu-box">
-        <span class="close" onclick="closeMenus()">✕</span>
-        <h2>存檔</h2>
-        <div id="save-slots"></div>
-    </div>
-</div>
-
-<div id="load-menu" class="menu">
-    <div class="menu-box">
-        <span class="close" onclick="closeMenus()">✕</span>
-        <h2>讀檔</h2>
-        <div id="load-slots"></div>
+    <div id="restart" style="display:none; position:absolute; bottom:12%; left:50%; transform:translateX(-50%);">
+        <button onclick="restartGame()">回到開端</button>
     </div>
 </div>
 
 <script>
-/* ================= 結局資料 ================= */
-const endings = {
-    ignore: "無法停留的人間",
-    only_you: "落單",
-    the_blood: "再也逃離不了的惡夢"
-};
-
-/* ================= 劇情 ================= */
 const story = {
-    ignore:{title:"無法停留的人間",video:"end喧囂.mp4",choices:[],isEnd:true},
-    only_you:{title:"落單",video:"end落單.mp4",choices:[],isEnd:true},
-    the_blood:{title:"再也逃離不了的惡夢",video:"end血色的呻吟.mp4",choices:[],isEnd:true},
-
-    start:{
-        title:"開端",video:"開端.mp4",
-        choices:[
-            {text:"上前詢問",next:"reply"},
-            {text:"不管了，還是回家吧……",next:"ignore"}
+    start: {
+        video: "開端.mp4",
+        choices: [
+            { text: "上前詢問", next: "end" }
         ]
     },
-
-    reply:{
-        title:"初次見面",video:"搭話.mp4",
-        choices:[
-            {text:"好的",next:"yes"},
-            {text:"不去",next:"no"}
-        ]
-    },
-
-    no:{
-        title:"艾爾的邀約",video:"蛋糕店.mp4",
-        choices:[
-            {text:"答應他",next:"go"},
-            {text:"拒絕他",next:"dont_go"}
-        ]
-    },
-
-    dont_go:{title:"拒絕",video:"拒絕.mp4",choices:[],nextScene:"only_you"},
-    go:{title:"期待的明日",video:"一起去.mp4",choices:[],nextScene:"make_cake"},
-    make_cake:{title:"甜點時光",video:"做蛋糕.mp4",choices:[],nextScene:"eat_cake"},
-
-    eat_cake:{
-        title:"奶油與心跳",video:"吃蛋糕.mp4",
-        choices:[
-            {text:"自己搭地鐵",next:"the_blood"},
-            {text:"讓艾爾送你",next:"talking"}
-        ]
-    },
-
-    talking:{
-        title:"你的主動",video:"一起回家.mp4",
-        choices:[
-            {text:"提及童年",next:"mother"},
-            {text:"沉默",next:"only_you"}
-        ]
-    },
-
-    mother:{
-        title:"對童年的聆聽",video:"童年的評價.mp4",
-        choices:[
-            {text:"母親都是為了你好",next:"only_you"},
-            {text:"以後都有我在",next:"only_you"}
-        ]
-    },
-
-    yes:{title:"（預留）",video:"搭話.mp4",choices:[],isEnd:true}
+    end: {
+        video: "end落單.mp4",
+        choices: [],
+        isEnd: true
+    }
 };
 
 const video = document.getElementById("main-video");
 const options = document.getElementById("options");
-let currentScene = "start";
+const restartBtn = document.getElementById("restart");
 
-/* ================= 主流程 ================= */
-function startGame(){
+let currentScene = null;
+
+function startGame() {
     document.getElementById("main-menu").classList.remove("show");
-    document.getElementById("video-container").style.display="block";
+    document.getElementById("video-container").style.display = "block";
     loadScene("start");
 }
 
-function loadScene(key){
+function loadScene(key) {
     currentScene = key;
-    const s = story[key];
+    const scene = story[key];
 
-    video.src = s.video;
+    video.src = scene.video;
     video.load();
-    video.play();
+    video.play().catch(()=>{});
 
-    options.innerHTML="";
-    options.style.display="none";
-    restart.style.display="none";
+    options.innerHTML = "";
+    options.style.display = "none";
+    restartBtn.style.display = "none";
 
-    video.onended=()=>{
-        if(s.isEnd){
-            unlockEnding(key);
-            restart.style.display="block";
+    video.onended = () => {
+        if (scene.isEnd) {
+            restartBtn.style.display = "block";
             return;
         }
-        if(s.nextScene){ loadScene(s.nextScene); return; }
-        s.choices.forEach(c=>{
-            const b=document.createElement("button");
-            b.textContent=c.text;
-            b.onclick=()=>loadScene(c.next);
-            options.appendChild(b);
+
+        scene.choices.forEach(c => {
+            const btn = document.createElement("button");
+            btn.textContent = c.text;
+            btn.onclick = () => loadScene(c.next);
+            options.appendChild(btn);
         });
-        options.style.display="flex";
-    }
+        options.style.display = "flex";
+    };
 }
 
-/* ================= 成就 ================= */
-function unlockEnding(k){
-    if(!endings[k])return;
-    let u=JSON.parse(localStorage.getItem("endings"))||[];
-    if(!u.includes(k)){u.push(k);localStorage.setItem("endings",JSON.stringify(u));}
-}
-
-function openAchievements(){
-    const list=document.getElementById("achievement-list");
-    list.innerHTML="";
-    const u=JSON.parse(localStorage.getItem("endings"))||[];
-    for(const k in endings){
-        const d=document.createElement("div");
-        d.className="achievement";
-        d.textContent=u.includes(k)?endings[k]:"???";
-        list.appendChild(d);
-    }
-    document.getElementById("achievement-menu").classList.add("show");
-}
-function closeAchievements(){
-    document.getElementById("achievement-menu").classList.remove("show");
-}
-
-/* ================= 其他 ================= */
-function startExtra(){ alert("番外尚未實裝"); }
-function backToMenu(){
-    video.pause();
-    document.getElementById("video-container").style.display="none";
-    document.getElementById("main-menu").classList.add("show");
+function restartGame() {
+    loadScene("start");
 }
 </script>
 
