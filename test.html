@@ -215,7 +215,7 @@ html, body {
 
 <script>
 /* =================================================
-   🔧 結局表（新增結局只要加在這）
+   結局資料（⚠️ 一定要在 story 外面）
 ================================================= */
 const endings = {
     ignore: "無法停留的人間",
@@ -224,20 +224,112 @@ const endings = {
 };
 
 /* =================================================
-   🔧 劇情資料（你之後主要改這裡）
+   劇情資料（你的原本劇情，已全部補回）
 ================================================= */
 const story = {
-    ignore: { title: endings.ignore, video: "end1.mp4", choices: [], isEnd: true },
-    only_you: { title: endings.only_you, video: "end2.mp4", choices: [], isEnd: true },
-    the_blood: { title: endings.the_blood, video: "end3.mp4", choices: [], isEnd: true },
+
+    ignore: {
+        title: endings.ignore,
+        video: "end喧囂.mp4",
+        choices: [],
+        isEnd: true
+    },
+
+    only_you: {
+        title: endings.only_you,
+        video: "end落單.mp4",
+        choices: [],
+        isEnd: true
+    },
+
+    the_blood: {
+        title: endings.the_blood,
+        video: "end血色的呻吟.mp4",
+        choices: [],
+        isEnd: true
+    },
 
     start: {
         title: "開端",
-        video: "start.mp4",
+        video: "開端.mp4",
         choices: [
-            { text: "上前詢問", next: "ignore" },
-            { text: "回家", next: "only_you" }
+            { text: "上前詢問", next: "reply" },
+            { text: "不管了，還是回家吧……", next: "ignore" }
         ]
+    },
+
+    reply: {
+        title: "初次見面",
+        video: "搭話.mp4",
+        choices: [
+            { text: "好的", next: "yes" },
+            { text: "不去", next: "no" }
+        ]
+    },
+
+    no: {
+        title: "艾爾的邀約",
+        video: "蛋糕店.mp4",
+        choices: [
+            { text: "答應他", next: "go" },
+            { text: "拒絕他", next: "dont_go" }
+        ]
+    },
+
+    dont_go: {
+        title: "拒絕",
+        video: "拒絕.mp4",
+        choices: [],
+        nextScene: "only_you"
+    },
+
+    go: {
+        title: "期待的明日",
+        video: "一起去.mp4",
+        choices: [],
+        nextScene: "make_cake"
+    },
+
+    make_cake: {
+        title: "甜點時光",
+        video: "做蛋糕.mp4",
+        choices: [],
+        nextScene: "eat_cake"
+    },
+
+    eat_cake: {
+        title: "奶油與心跳",
+        video: "吃蛋糕.mp4",
+        choices: [
+            { text: "自己搭地鐵", next: "the_blood" },
+            { text: "讓艾爾送你", next: "talking" }
+        ]
+    },
+
+    talking: {
+        title: "你的主動",
+        video: "一起回家.mp4",
+        choices: [
+            { text: "提及童年", next: "mother" },
+            { text: "提及小貓", next: "cat" },
+            { text: "沉默", next: "quiet" }
+        ]
+    },
+
+    mother: {
+        title: "對童年的聆聽",
+        video: "童年的評價.mp4",
+        choices: [
+            { text: "母親都是為了你好", next: "only_you" },
+            { text: "以後都有我在", next: "only_you" }
+        ]
+    },
+
+    yes: {
+        title: "（預留）",
+        video: "搭話.mp4",
+        choices: [],
+        isEnd: true
     }
 };
 
@@ -247,53 +339,7 @@ const story = {
 const video = document.getElementById("main-video");
 const options = document.getElementById("options");
 let currentScene = "start";
-
-/* =================================================
-   主選單控制
-================================================= */
-function startGame() {
-    document.getElementById("main-menu").style.display = "none";
-    document.getElementById("video-container").style.display = "block";
-    loadScene("start");
-}
-
-function startExtra() {
-    alert("番外之後接 ♡");
-}
-
-/* =================================================
-   成就系統
-================================================= */
-function openAchievements() {
-    const list = document.getElementById("achievement-list");
-    list.innerHTML = "";
-
-    const unlocked = JSON.parse(localStorage.getItem("endings")) || [];
-
-    for (let key in endings) {
-        const div = document.createElement("div");
-        div.className = "achievement";
-        div.textContent = unlocked.includes(key) ? endings[key] : "???";
-        list.appendChild(div);
-    }
-
-    document.getElementById("achievement-menu").style.display = "block";
-}
-
-function closeAchievements() {
-    document.getElementById("achievement-menu").style.display = "none";
-}
-
-/* =================================================
-   解鎖結局
-================================================= */
-function unlockEnding(key) {
-    let unlocked = JSON.parse(localStorage.getItem("endings")) || [];
-    if (!unlocked.includes(key)) {
-        unlocked.push(key);
-        localStorage.setItem("endings", JSON.stringify(unlocked));
-    }
-}
+let wasPlaying = false;
 
 /* =================================================
    播放場景
@@ -302,18 +348,26 @@ function loadScene(key) {
     currentScene = key;
     const scene = story[key];
 
+    video.pause();
     video.src = scene.video;
     video.load();
+    video.currentTime = 0;
     video.play();
 
     options.innerHTML = "";
     options.style.display = "none";
+    document.getElementById("restart").style.display = "none";
 
     video.onended = () => {
+
         if (scene.isEnd) {
             unlockEnding(key);
-            document.getElementById("main-menu").style.display = "block";
-            document.getElementById("video-container").style.display = "none";
+            document.getElementById("restart").style.display = "block";
+            return;
+        }
+
+        if (scene.choices.length === 0 && scene.nextScene) {
+            loadScene(scene.nextScene);
             return;
         }
 
@@ -327,7 +381,110 @@ function loadScene(key) {
         options.style.display = "flex";
     };
 }
+
+/* =================================================
+   結局解鎖（成就）
+================================================= */
+function unlockEnding(key) {
+    if (!endings[key]) return;
+
+    let unlocked = JSON.parse(localStorage.getItem("endings")) || [];
+    if (!unlocked.includes(key)) {
+        unlocked.push(key);
+        localStorage.setItem("endings", JSON.stringify(unlocked));
+    }
+}
+
+/* =================================================
+   存檔 / 讀檔（你原本的，正常可用）
+================================================= */
+function openSaveMenu() {
+    wasPlaying = !video.paused;
+    video.pause();
+    generateSlots("save");
+    document.getElementById("save-menu").style.display = "block";
+}
+
+function openLoadMenu() {
+    wasPlaying = !video.paused;
+    video.pause();
+    generateSlots("load");
+    document.getElementById("load-menu").style.display = "block";
+}
+
+function closeMenus() {
+    document.getElementById("save-menu").style.display = "none";
+    document.getElementById("load-menu").style.display = "none";
+    if (wasPlaying) video.play();
+}
+
+function generateSlots(type) {
+    const container = document.getElementById(type + "-slots");
+    container.innerHTML = "";
+
+    for (let i = 1; i <= 9; i++) {
+        const data = localStorage.getItem("save_" + i);
+        const slot = document.createElement("div");
+        slot.className = "slot";
+
+        const img = document.createElement("img");
+        const p = document.createElement("p");
+
+        if (data) {
+            const save = JSON.parse(data);
+            img.src = save.thumbnail;
+            p.innerText = save.title;
+        } else {
+            p.innerText = "空白存檔";
+        }
+
+        slot.appendChild(img);
+        slot.appendChild(p);
+        slot.onclick = () => type === "save" ? saveToSlot(i) : loadFromSlot(i);
+
+        container.appendChild(slot);
+    }
+}
+
+function captureThumbnail() {
+    if (video.videoWidth === 0) return "";
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+    return canvas.toDataURL("image/png");
+}
+
+function saveToSlot(i) {
+    const saveData = {
+        scene: currentScene,
+        title: story[currentScene].title,
+        time: video.currentTime || 0,
+        thumbnail: captureThumbnail()
+    };
+    localStorage.setItem("save_" + i, JSON.stringify(saveData));
+    closeMenus();
+}
+
+function loadFromSlot(i) {
+    const data = localStorage.getItem("save_" + i);
+    if (!data) return;
+    const save = JSON.parse(data);
+    closeMenus();
+    loadScene(save.scene);
+    video.onloadedmetadata = () => {
+        video.currentTime = save.time;
+        video.play();
+    };
+}
+
+function restartGame() {
+    loadScene("start");
+}
+
+loadScene("start");
 </script>
+
 
 </body>
 </html>
