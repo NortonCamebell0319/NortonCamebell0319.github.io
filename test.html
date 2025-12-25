@@ -370,29 +370,6 @@ function loadScene(key) {
         options.style.display = "flex";
     };
 }
-               
-
-        // 結局處理
-        if (scene.isEnd) {
-            document.getElementById("restart").style.display = "block";
-            return;
-        }
-
-        // 無選項但指定下一段 → 自動跳
-        if (scene.choices.length === 0 && scene.nextScene) {
-            loadScene(scene.nextScene);
-            return;
-        }
-
-        // 顯示選項
-        scene.choices.forEach(c => {
-            const btn = document.createElement("button");
-            btn.textContent = c.text;
-            btn.onclick = () => loadScene(c.next);
-            options.appendChild(btn);
-        });
-
-        options.style.display = "flex";
 
 /* =================================================
    存檔 / 讀檔 UI
