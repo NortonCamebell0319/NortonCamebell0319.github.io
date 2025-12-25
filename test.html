@@ -239,6 +239,21 @@ const story = {
         ]
     },
 
+   yes: {
+        title: "洛克斯的咖啡廳",
+        video: "咖啡廳.mp4",
+        choices: [
+            { text: "等待他回來", next: "wait" },
+            { text: "直接離開", next: "sorry" }
+        ]
+    },
+   yes: {
+        title: "再次相遇",
+        video: "等他回來.mp4",
+        choices:[]
+        nextScene: "her_hair"
+    },
+   
     no: {
         title: "艾爾的邀約",
         video: "蛋糕店.mp4",
@@ -296,13 +311,6 @@ const story = {
            { text: "以後都有我在", next: "i_will_by_your_side" },
         ],
     },
-
-    yes: {
-        title: "（預留）",
-        video: "搭話.mp4",
-        choices: [],
-        isEnd: true
-    }
 };
 
 /* =================================================
