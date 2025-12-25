@@ -247,10 +247,10 @@ const story = {
             { text: "直接離開", next: "sorry" }
         ]
     },
-   yes: {
+   wait: {
         title: "再次相遇",
         video: "等他回來.mp4",
-        choices:[]
+        choices:[],
         nextScene: "her_hair"
     },
    
@@ -370,15 +370,7 @@ function loadScene(key) {
         options.style.display = "flex";
     };
 }
-               // 再播放
-
-    // 重置 UI
-    options.innerHTML = "";
-    options.style.display = "none";
-    document.getElementById("restart").style.display = "none";
-
-    // 影片播完後
-    video.onended = () => {
+               
 
         // 結局處理
         if (scene.isEnd) {
@@ -401,8 +393,6 @@ function loadScene(key) {
         });
 
         options.style.display = "flex";
-    };
-}
 
 /* =================================================
    存檔 / 讀檔 UI
