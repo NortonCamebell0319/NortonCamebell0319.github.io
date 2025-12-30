@@ -52,13 +52,47 @@ html, body {
     z-index: 10;
 }
 
-#options button {
-    padding: 14px 32px;
-    border-radius: 30px;
-    background: rgba(0,0,0,0.65);
-    color: white;
-    border: 1px solid white;
+/* ===============================
+   雙層交錯選項按鈕
+=============================== */
+.choice-btn {
+    position: relative;
+    width: 220px;
+    height: 56px;
+    background: none;
+    border: none;
     cursor: pointer;
+    padding: 0;
+}
+
+/* 下層 */
+.choice-btn .btn-back {
+    position: absolute;
+    inset: 0;
+    background: #c0392b; /* 紅色 */
+    border-radius: 30px;
+    transform: translate(6px, 6px);
+}
+
+/* 上層 */
+.choice-btn .btn-front {
+    position: absolute;
+    inset: 0;
+    background: #111;
+    border: 1px solid white;
+    color: white;
+    border-radius: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: transform 0.2s ease;
+}
+
+/* hover：上層浮起 */
+.choice-btn:hover .btn-front {
+    transform: translate(6px, 6px);
 }
 
 /* =================================================
@@ -362,11 +396,17 @@ function loadScene(key) {
         }
 
         scene.choices.forEach(c => {
-            const btn = document.createElement("button");
-            btn.textContent = c.text;
-            btn.onclick = () => loadScene(c.next);
-            options.appendChild(btn);
-        });
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+
+    btn.innerHTML = `
+        <span class="btn-back"></span>
+        <span class="btn-front">${c.text}</span>
+    `;
+
+    btn.onclick = () => loadScene(c.next);
+    options.appendChild(btn);
+});
 
         options.style.display = "flex";
     };
