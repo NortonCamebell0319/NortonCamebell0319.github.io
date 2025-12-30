@@ -450,15 +450,19 @@ function captureThumbnail() {
     return canvas.toDataURL("image/png");
 }
 function saveToSlot(i) {
-    const saveData = {
-        scene: currentScene,
-        title: story[currentScene].title,
-        time: video.currentTime || 0
-        // ❌ 不再存 thumbnail
-    };
+    try {
+        const saveData = {
+            scene: currentScene,
+            title: story[currentScene].title,
+            time: video.currentTime || 0
+        };
 
-    localStorage.setItem("save_" + i, JSON.stringify(saveData));
-    closeMenus();
+        localStorage.setItem("save_" + i, JSON.stringify(saveData));
+        closeMenus();
+    } catch (e) {
+        alert("存檔空間已滿，請清除舊存檔");
+        console.error(e);
+    }
 }
 
 
