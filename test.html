@@ -409,13 +409,15 @@ function generateSlots(type) {
         const img = document.createElement("img");
         const p = document.createElement("p");
 
-        if (data) {
-            const save = JSON.parse(data);
-            img.src = save.thumbnail;
-            p.innerText = save.title;
-        } else {
-            p.innerText = "空白存檔";
-        }
+       if (data) {
+    const save = JSON.parse(data);
+    img.style.display = "none"; // 或給固定圖
+    p.innerText = save.title;
+} else {
+    img.style.display = "none";
+    p.innerText = "空白存檔";
+}
+
 
         slot.appendChild(img);
         slot.appendChild(p);
@@ -451,13 +453,14 @@ function saveToSlot(i) {
     const saveData = {
         scene: currentScene,
         title: story[currentScene].title,
-        time: video.currentTime || 0, // 保底
-        thumbnail: captureThumbnail()
+        time: video.currentTime || 0
+        // ❌ 不再存 thumbnail
     };
 
     localStorage.setItem("save_" + i, JSON.stringify(saveData));
     closeMenus();
 }
+
 
 /* =================================================
    讀檔實作
