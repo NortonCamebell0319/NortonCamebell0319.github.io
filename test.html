@@ -244,7 +244,7 @@ const story = {
         video: "咖啡廳.mp4",
         choices: [
             { text: "等待他回來", next: "wait" },
-            { text: "直接離開", next: "sorry" }
+            { text: "正在施工,勿點!", next: "sorry" }
         ]
     },
    wait: {
@@ -298,8 +298,8 @@ const story = {
         video: "一起回家.mp4",
         choices: [
            { text: "提及童年", next: "mother" },
-           { text: "提及小貓", next: "cat" },
-           { text: "沉默", next: "quite" }
+           { text: "提及小貓<施工中>", next: "cat" },
+           { text: "沉默<施工中>", next: "quite" }
         ],
     },
 
@@ -307,8 +307,8 @@ const story = {
         title: "對童年的聆聽",
         video: "童年的評價.mp4",
         choices: [
-           { text: "母親都是為了你好", next: "the_best_choice" },
-           { text: "以後都有我在", next: "i_will_by_your_side" },
+           { text: "母親都是為了你好<施工中>", next: "the_best_choice" },
+           { text: "以後都有我在<施工中>", next: "i_will_by_your_side" },
         ],
     },
 };
