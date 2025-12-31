@@ -7,6 +7,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+   
+   /* 蝴蝶圖層：疊在背景圖正上方 */
+#butterfly-layer {
+    position: absolute;
+    inset: 0;
+    /* 請更換為你蝴蝶透明圖的正確檔名 */
+    background: url("蝴蝶透明層.png") center center / contain no-repeat;
+    pointer-events: none; /* 讓點擊可以穿過圖層，點到下方的按鈕 */
+    opacity: 0; /* 預設隱藏，發光時才出現 */
+    z-index: 1;
+}
+
+/* 蝴蝶淡入淡出的發光動畫 */
+@keyframes butterflyGlowEffect {
+    0% { opacity: 0; filter: drop-shadow(0 0 0px #ffb6c1); }
+    40% { opacity: 1; filter: drop-shadow(0 0 20px #ff69b4) brightness(1.5); }
+    100% { opacity: 0; filter: drop-shadow(0 0 0px #ffb6c1); }
+}
+
+/* 啟動動畫的 Class */
+.butterfly-glow-active {
+    animation: butterflyGlowEffect 2s ease-in-out forwards;
+}
+
    /* 修改後的新樣式 */
 #start-screen {
     position: fixed;
@@ -44,6 +68,15 @@
     animation: butterflyGlow 2s ease-in-out forwards;
 }
 
+<div id="start-screen">
+    <div class="start-content-wrapper">
+        <div id="butterfly-layer"></div>
+
+        <button class="start-hit start-extra"></button>
+        <button class="start-hit start-begin" onclick="startGame()"></button>
+        <button class="start-hit start-ending"></button>
+    </div>
+</div>
 
 /* 這是關鍵：強制讓背景圖容器保持 16:9 比例 */
 .start-content-wrapper {
@@ -324,28 +357,28 @@ html, body {
 
 <script>
    function startGame() {
-    const wrapper = document.querySelector(".start-content-wrapper");
+    const butterfly = document.getElementById("butterfly-layer");
     
-    // 加上動畫標籤
-    wrapper.classList.add("glow-active");
+    // 讓蝴蝶開始發光動畫
+    butterfly.classList.add("butterfly-glow-active");
     
-    // 2000 毫秒 = 2 秒，與 CSS 的動畫時間一致
+    // 2 秒動畫結束後進入遊戲
     setTimeout(() => {
-        // 先淡出 UI
-        document.getElementById("start-screen").style.transition = "opacity 0.5s";
+        // 讓整個畫面淡出
+        document.getElementById("start-screen").style.transition = "opacity 0.8s";
         document.getElementById("start-screen").style.opacity = "0";
         
-        // 等 UI 變透明後再徹底移除並加載場景
         setTimeout(() => {
             document.getElementById("start-screen").style.display = "none";
             loadScene("start");
-            wrapper.classList.remove("glow-active");
-            // 重置透明度供下次使用
+            
+            // 重置狀態以便下次回到主選單
+            butterfly.classList.remove("butterfly-glow-active");
             document.getElementById("start-screen").style.opacity = "1";
-        }, 500);
-        
+        }, 800);
     }, 2000); 
 }
+
 
 /* =================================================
    劇情資料（你之後只需要改這一區）
