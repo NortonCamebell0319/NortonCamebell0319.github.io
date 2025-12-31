@@ -33,28 +33,46 @@
 #butterfly-layer {
     position: absolute;
     inset: 0;
-
-    background-image: url("蝴蝶透明層.png");
-    background-repeat: no-repeat;
-    background-size: cover;       /* ★ 關鍵 */
-    background-position: center;  /* 先置中 */
-
+    background: url("蝴蝶透明層.png") center center / contain no-repeat;
     pointer-events: none;
     opacity: 0;
     z-index: 1;
 }
 
+   #butterfly-layer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: inherit;      /* ← 用同一張蝴蝶圖 */
+    filter: blur(28px);       /* ← 發光柔度（可調） */
+    opacity: 0.7;
+    transform: scale(1.05);   /* ← 微微放大，光會包在外面 */
+   }
+   @keyframes butterflyGlow {
+    0% {
+        opacity: 0;
+    }
+    40% {
+        opacity: 1;
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+   }
 /* 蝴蝶淡入淡出的發光動畫 */
-@keyframes butterflyGlowEffect {
+/*@keyframes butterflyGlowEffect {
     0% { opacity: 0; filter: drop-shadow(0 0 0px #ffb6c1); }
     40% { opacity: 1; filter: drop-shadow(0 0 25px #ff69b4) brightness(1.5); }
     70% { opacity: 1; filter: drop-shadow(0 0 30px #ffb6c1) brightness(1.6); }
     100% { opacity: 0; filter: drop-shadow(0 0 0px #ffb6c1); }
-}
+}*/
 
 /* 啟動動畫的 Class */
 .butterfly-glow-active {
-    animation: butterflyGlowEffect 2s ease-in-out forwards;
+    animation: butterflyGlow 2s ease-in-out forwards;
 }
 
 .start-hit {
