@@ -7,30 +7,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-   .start-hit {
+   /* 修改後的新樣式 */
+#start-screen {
+    position: fixed;
+    inset: 0;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+}
+
+/* 這是關鍵：強制讓背景圖容器保持 16:9 比例 */
+.start-content-wrapper {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    height: 100%;
+    max-width: 100%;
+    background: url("開始介面.png") center center / contain no-repeat;
+}
+
+.start-hit {
     position: absolute;
-    right: 12%;
-    width: 260px;
-    height: 80px;
-    background: transparent;
+    /* 改用百分比，這樣圖片縮小時按鈕才會跟著動 */
+    left: 55%;      
+    width: 28%;     
+    height: 12%;    
+    background: rgba(255, 0, 0, 0); /* 最後一個數字 0 代表透明，測試時可改 0.3 */
     border: none;
     cursor: pointer;
 }
 
-/* 上：番外 */
-.start-extra {
-    top: 32%;
-}
+/* 微調三個按鈕的高低位置 */
+.start-extra  { top: 31%; }
+.start-begin  { top: 46%; }
+.start-ending { top: 61%; }
 
-/* 中：開始遊戲 */
-.start-begin {
-    top: 45%;
-}
-
-/* 下：結局列表 */
-.start-ending {
-    top: 58%;
-}
 /* =================================================
    基本畫面設定
 ================================================= */
@@ -219,21 +231,19 @@ html, body {
     text-align: center;
     margin: 5px 0;
 }
-   #start-screen {
-    position: fixed;
-    inset: 0;
-    background: url("看始介面.png") center center / contain no-repeat black;
-    z-index: 300;
-   }
+   
 </style>
 </head>
 
 <body>
-   <div id="start-screen">
-    <button class="start-hit start-extra"></button>
-    <button class="start-hit start-begin" onclick="startGame()"></button>
-    <button class="start-hit start-ending"></button>
+      <div id="start-screen">
+      <div class="start-content-wrapper">
+         <button class="start-hit start-extra"></button>
+         <button class="start-hit start-begin" onclick="startGame()"></button>
+         <button class="start-hit start-ending"></button>
+      </div>
    </div>
+
 
 <div id="video-container">
 
