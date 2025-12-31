@@ -35,7 +35,6 @@
     inset: 0;
     background: url("蝴蝶透明層.png") center center / contain no-repeat;
     pointer-events: none;
-    opacity: 0;
     z-index: 1;
 }
 
@@ -43,10 +42,10 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: inherit;      /* ← 用同一張蝴蝶圖 */
-    filter: blur(28px);       /* ← 發光柔度（可調） */
-    opacity: 0.7;
-    transform: scale(1.05);   /* ← 微微放大，光會包在外面 */
+    background: inherit;
+    filter: blur(28px);
+    opacity: 0;
+    transform: scale(1.05);
    }
    @keyframes butterflyGlow {
     0% {
@@ -71,7 +70,7 @@
 }*/
 
 /* 啟動動畫的 Class */
-.butterfly-glow-active {
+.butterfly-glow-active::before {
     animation: butterflyGlow 2s ease-in-out forwards;
 }
 
