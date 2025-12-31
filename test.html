@@ -17,6 +17,33 @@
     align-items: center;
     z-index: 300;
 }
+   
+/* 定義淡入淡出的微光動畫 */
+@keyframes butterflyGlow {
+    0% { 
+        filter: drop-shadow(0 0 0px rgba(255, 182, 193, 0));
+        brightness(1); 
+    }
+    40% { 
+        /* 淡入：在 40% 的時間點達到最亮 */
+        filter: drop-shadow(0 0 20px rgba(255, 105, 180, 0.8)) brightness(1.3); 
+    }
+    70% {
+        /* 持續一下：稍微維持亮度 */
+        filter: drop-shadow(0 0 25px rgba(255, 182, 193, 0.9)) brightness(1.4);
+    }
+    100% { 
+        /* 淡出：回到原始狀態 */
+        filter: drop-shadow(0 0 0px rgba(255, 182, 193, 0));
+        brightness(1); 
+    }
+}
+
+.glow-active {
+    /* ease-in-out 會讓動作更柔和 */
+    animation: butterflyGlow 2s ease-in-out forwards;
+}
+
 
 /* 這是關鍵：強制讓背景圖容器保持 16:9 比例 */
 .start-content-wrapper {
@@ -45,10 +72,10 @@
 
 /* 這裡是中間那個「開始遊戲」，我們單獨給它更大的寬高 */
 .start-begin { 
-    top: 55%;  /* 稍微往上一點點 */
-    left: 54.5%; /* 稍微往左一點點來抵銷變大的部分 */
-    width: 24%;  /* 比其他按鈕寬 (原本28%) */
-    height: 20%; /* 比其他按鈕高 (原本12%) */8%; /* 比其他按鈕高 (原本12%) */
+    top: 55%;  
+    left: 54.5%; 
+    width: 24%; 
+    height: 20%; 
 }
 
 .start-ending { 
@@ -297,9 +324,29 @@ html, body {
 
 <script>
    function startGame() {
-    document.getElementById("start-screen").style.display = "none";
-    loadScene("start");
-   }
+    const wrapper = document.querySelector(".start-content-wrapper");
+    
+    // 加上動畫標籤
+    wrapper.classList.add("glow-active");
+    
+    // 2000 毫秒 = 2 秒，與 CSS 的動畫時間一致
+    setTimeout(() => {
+        // 先淡出 UI
+        document.getElementById("start-screen").style.transition = "opacity 0.5s";
+        document.getElementById("start-screen").style.opacity = "0";
+        
+        // 等 UI 變透明後再徹底移除並加載場景
+        setTimeout(() => {
+            document.getElementById("start-screen").style.display = "none";
+            loadScene("start");
+            wrapper.classList.remove("glow-active");
+            // 重置透明度供下次使用
+            document.getElementById("start-screen").style.opacity = "1";
+        }, 500);
+        
+    }, 2000); 
+}
+
 /* =================================================
    劇情資料（你之後只需要改這一區）
 ================================================= */
