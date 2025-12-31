@@ -7,6 +7,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+   .start-hit {
+    position: absolute;
+    right: 12%;
+    width: 260px;
+    height: 80px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+/* 上：番外 */
+.start-extra {
+    top: 32%;
+}
+
+/* 中：開始遊戲 */
+.start-begin {
+    top: 45%;
+}
+
+/* 下：結局列表 */
+.start-ending {
+    top: 58%;
+}
 /* =================================================
    基本畫面設定
 ================================================= */
@@ -195,10 +219,21 @@ html, body {
     text-align: center;
     margin: 5px 0;
 }
+   #start-screen {
+    position: fixed;
+    inset: 0;
+    background: url("start-screen.png") center center / contain no-repeat black;
+    z-index: 300;
+   }
 </style>
 </head>
 
 <body>
+   <div id="start-screen">
+    <button class="start-hit start-extra"></button>
+    <button class="start-hit start-begin" onclick="startGame()"></button>
+    <button class="start-hit start-ending"></button>
+   </div>
 
 <div id="video-container">
 
@@ -239,6 +274,10 @@ html, body {
 </div>
 
 <script>
+   function startGame() {
+    document.getElementById("start-screen").style.display = "none";
+    loadScene("start");
+   }
 /* =================================================
    劇情資料（你之後只需要改這一區）
 ================================================= */
