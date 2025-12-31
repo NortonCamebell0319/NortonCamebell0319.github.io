@@ -67,14 +67,17 @@ html, body {
 }
 
 /* 下層 */
-.choice-btn .btn-back {
+..choice-btn .btn-back {
     position: absolute;
     inset: 0;
-    background: #c0392b; /* 紅色 */
+    background: white;              /* ← 一開始白色 */
     border-radius: 30px;
-    transform: translate(6px, 6px);
+    transform: translate(6px, 6px); /* ← 固定在右下 */
+    transition: background-color 0.2s ease;
 }
-
+   .choice-btn:hover .btn-back {
+    background: #e60012; /* 鮮紅色 */
+   }
 /* 上層 */
 .choice-btn .btn-front {
     position: absolute;
@@ -87,17 +90,16 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
+    transform: translate(-4px, -4px); /* ← 原本就在左上 */
 
     transition: transform 0.2s ease;
 }
 
 /* hover：上層浮起 */
 .choice-btn:hover .btn-front {
-    transform: translate(6px, 6px);
+    transform: translate(-8px, -8px); /* ← 再往左上滑 */
 }
-   .choice-btn:active .btn-front {
-    transform: translate(6px, 6px);
-   }
+
 
 /* =================================================
    右側功能鍵（存檔 / 讀檔）
