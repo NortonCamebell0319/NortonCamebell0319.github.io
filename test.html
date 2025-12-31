@@ -33,10 +33,14 @@
 #butterfly-layer {
     position: absolute;
     inset: 0;
-    /* 請更換為你蝴蝶透明圖的正確檔名 */
-    background: url("蝴蝶透明層.png") center center / contain no-repeat;
-    pointer-events: none; /* 讓點擊可以穿過圖層 */
-    opacity: 0; /* 預設隱藏 */
+
+    background-image: url("蝴蝶透明層.png");
+    background-repeat: no-repeat;
+    background-size: cover;       /* ★ 關鍵 */
+    background-position: center;  /* 先置中 */
+
+    pointer-events: none;
+    opacity: 0;
     z-index: 1;
 }
 
