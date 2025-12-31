@@ -7,31 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-   
-   /* 蝴蝶圖層：疊在背景圖正上方 */
-#butterfly-layer {
-    position: absolute;
-    inset: 0;
-    /* 請更換為你蝴蝶透明圖的正確檔名 */
-    background: url("蝴蝶透明層.png") center center / contain no-repeat;
-    pointer-events: none; /* 讓點擊可以穿過圖層，點到下方的按鈕 */
-    opacity: 0; /* 預設隱藏，發光時才出現 */
-    z-index: 1;
-}
-
-/* 蝴蝶淡入淡出的發光動畫 */
-@keyframes butterflyGlowEffect {
-    0% { opacity: 0; filter: drop-shadow(0 0 0px #ffb6c1); }
-    40% { opacity: 1; filter: drop-shadow(0 0 20px #ff69b4) brightness(1.5); }
-    100% { opacity: 0; filter: drop-shadow(0 0 0px #ffb6c1); }
-}
-
-/* 啟動動畫的 Class */
-.butterfly-glow-active {
-    animation: butterflyGlowEffect 2s ease-in-out forwards;
-}
-
-   /* 修改後的新樣式 */
+/* =================================================
+   開始畫面與蝴蝶發光樣式
+================================================= */
 #start-screen {
     position: fixed;
     inset: 0;
@@ -41,42 +19,6 @@
     align-items: center;
     z-index: 300;
 }
-   
-/* 定義淡入淡出的微光動畫 */
-@keyframes butterflyGlow {
-    0% { 
-        filter: drop-shadow(0 0 0px rgba(255, 182, 193, 0));
-        brightness(1); 
-    }
-    40% { 
-        /* 淡入：在 40% 的時間點達到最亮 */
-        filter: drop-shadow(0 0 20px rgba(255, 105, 180, 0.8)) brightness(1.3); 
-    }
-    70% {
-        /* 持續一下：稍微維持亮度 */
-        filter: drop-shadow(0 0 25px rgba(255, 182, 193, 0.9)) brightness(1.4);
-    }
-    100% { 
-        /* 淡出：回到原始狀態 */
-        filter: drop-shadow(0 0 0px rgba(255, 182, 193, 0));
-        brightness(1); 
-    }
-}
-
-.glow-active {
-    /* ease-in-out 會讓動作更柔和 */
-    animation: butterflyGlow 2s ease-in-out forwards;
-}
-
-<div id="start-screen">
-    <div class="start-content-wrapper">
-        <div id="butterfly-layer"></div>
-
-        <button class="start-hit start-extra"></button>
-        <button class="start-hit start-begin" onclick="startGame()"></button>
-        <button class="start-hit start-ending"></button>
-    </div>
-</div>
 
 /* 這是關鍵：強制讓背景圖容器保持 16:9 比例 */
 .start-content-wrapper {
@@ -85,6 +27,30 @@
     height: 100%;
     max-width: 100%;
     background: url("開始介面.png") center center / contain no-repeat;
+}
+
+/* 蝴蝶圖層：疊在背景圖正上方 */
+#butterfly-layer {
+    position: absolute;
+    inset: 0;
+    /* 請更換為你蝴蝶透明圖的正確檔名 */
+    background: url("蝴蝶透明層.png") center center / contain no-repeat;
+    pointer-events: none; /* 讓點擊可以穿過圖層 */
+    opacity: 0; /* 預設隱藏 */
+    z-index: 1;
+}
+
+/* 蝴蝶淡入淡出的發光動畫 */
+@keyframes butterflyGlowEffect {
+    0% { opacity: 0; filter: drop-shadow(0 0 0px #ffb6c1); }
+    40% { opacity: 1; filter: drop-shadow(0 0 25px #ff69b4) brightness(1.5); }
+    70% { opacity: 1; filter: drop-shadow(0 0 30px #ffb6c1) brightness(1.6); }
+    100% { opacity: 0; filter: drop-shadow(0 0 0px #ffb6c1); }
+}
+
+/* 啟動動畫的 Class */
+.butterfly-glow-active {
+    animation: butterflyGlowEffect 2s ease-in-out forwards;
 }
 
 .start-hit {
@@ -96,6 +62,7 @@
     background: rgba(255, 0, 0, 0); /* 最後一個數字 0 代表透明，測試時可改 0.3 */
     border: none;
     cursor: pointer;
+    z-index: 10;
 }
 
 /* 微調三個按鈕的位置與大小 */
@@ -308,77 +275,68 @@ html, body {
 </head>
 
 <body>
-      <div id="start-screen">
+   <div id="start-screen">
       <div class="start-content-wrapper">
+         <div id="butterfly-layer"></div>
+
          <button class="start-hit start-extra"></button>
          <button class="start-hit start-begin" onclick="startGame()"></button>
          <button class="start-hit start-ending"></button>
       </div>
    </div>
 
+   <div id="video-container">
+      <video id="main-video" playsinline></video>
+      <div id="options"></div>
+      <div id="menu-btns">
+         <button onclick="openSaveMenu()">存檔</button>
+         <button onclick="openLoadMenu()">讀檔</button>
+      </div>
+      <div id="restart">
+         <button onclick="restartGame()">回到開端</button>
+      </div>
+   </div>
 
-<div id="video-container">
+   <div id="save-menu" class="menu">
+      <div class="menu-box">
+         <span class="close" onclick="closeMenus()">✕</span>
+         <h2>存檔</h2>
+         <div id="save-slots" class="slots"></div>
+      </div>
+   </div>
 
-    <!-- 主影片播放器 -->
-    <video id="main-video" playsinline></video>
-
-    <!-- 選項區 -->
-    <div id="options"></div>
-
-    <!-- 功能鍵 -->
-    <div id="menu-btns">
-        <button onclick="openSaveMenu()">存檔</button>
-        <button onclick="openLoadMenu()">讀檔</button>
-    </div>
-
-    <!-- 結局 -->
-    <div id="restart">
-        <button onclick="restartGame()">回到開端</button>
-    </div>
-</div>
-
-<!-- ================= 存檔畫面 ================= -->
-<div id="save-menu" class="menu">
-    <div class="menu-box">
-        <span class="close" onclick="closeMenus()">✕</span>
-        <h2>存檔</h2>
-        <div id="save-slots" class="slots"></div>
-    </div>
-</div>
-
-<!-- ================= 讀檔畫面 ================= -->
-<div id="load-menu" class="menu">
-    <div class="menu-box">
-        <span class="close" onclick="closeMenus()">✕</span>
-        <h2>讀檔</h2>
-        <div id="load-slots" class="slots"></div>
-    </div>
-</div>
+   <div id="load-menu" class="menu">
+      <div class="menu-box">
+         <span class="close" onclick="closeMenus()">✕</span>
+         <h2>讀檔</h2>
+         <div id="load-slots" class="slots"></div>
+      </div>
+   </div>
 
 <script>
-   function startGame() {
+function startGame() {
     const butterfly = document.getElementById("butterfly-layer");
+    const screen = document.getElementById("start-screen");
     
-    // 讓蝴蝶開始發光動畫
+    // 啟動蝴蝶發光動畫
     butterfly.classList.add("butterfly-glow-active");
     
-    // 2 秒動畫結束後進入遊戲
+    // 延遲 2 秒（等動畫播完大部分）後才開始進入遊戲
     setTimeout(() => {
         // 讓整個畫面淡出
-        document.getElementById("start-screen").style.transition = "opacity 0.8s";
-        document.getElementById("start-screen").style.opacity = "0";
+        screen.style.transition = "opacity 0.8s";
+        screen.style.opacity = "0";
         
         setTimeout(() => {
-            document.getElementById("start-screen").style.display = "none";
+            screen.style.display = "none";
             loadScene("start");
             
             // 重置狀態以便下次回到主選單
             butterfly.classList.remove("butterfly-glow-active");
-            document.getElementById("start-screen").style.opacity = "1";
+            screen.style.opacity = "1";
         }, 800);
     }, 2000); 
 }
-
 
 /* =================================================
    劇情資料（你之後只需要改這一區）
@@ -432,6 +390,7 @@ const story = {
             { text: "正在施工,勿點!", next: "sorry" }
         ]
     },
+
    wait: {
         title: "再次相遇",
         video: "等他回来.mp4",
@@ -619,27 +578,8 @@ function generateSlots(type) {
 }
 
 /* =================================================
-   存檔實作（含手機端保險）
+   存檔實作
 ================================================= */
-/* =================================================
-   擷取存檔縮圖（安全版）
-   👉 即使影片尚未準備好，也不會讓存檔失敗
-================================================= */
-function captureThumbnail() {
-    // 如果影片尺寸還沒準備好，回傳空白圖
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
-        return "";
-    }
-
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-
-    return canvas.toDataURL("image/png");
-}
 function saveToSlot(i) {
     try {
         const saveData = {
@@ -670,23 +610,16 @@ function loadFromSlot(i) {
 
     video.onloadedmetadata = () => {
         video.currentTime = save.time;
-        video.play().catch(() => {
-    // 瀏覽器阻擋自動播放時，什麼都不做
-});
-
+        video.play().catch(() => {});
     };
 }
 
 /* =================================================
    回到開端
 ================================================= */
-/* 回到開端 */
 function restartGame() {
     loadScene("start");
 }
-
-// ✅ 這裡不要自動呼叫 startGame()
-// 啟動只在點擊「開始按鈕」時才呼叫
 </script>
 
 </body>
