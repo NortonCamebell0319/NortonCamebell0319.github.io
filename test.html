@@ -238,7 +238,7 @@ html, body {
 <div id="video-container">
 
     <!-- 主影片播放器 -->
-    <video id="main-video" autoplay playsinline></video>
+    <video id="main-video" playsinline></video>
 
     <!-- 選項區 -->
     <div id="options"></div>
@@ -428,7 +428,7 @@ function loadScene(key) {
     // ✅ 等 metadata 載好再播
     video.onloadedmetadata = () => {
         video.currentTime = 0;
-        video.play();
+        video.play().catch(err => console.warn("播放被阻擋", err));
     };
 
     // 播放結束
@@ -444,17 +444,17 @@ function loadScene(key) {
         }
 
         scene.choices.forEach(c => {
-    const btn = document.createElement("button");
-    btn.className = "choice-btn";
+            const btn = document.createElement("button");
+            btn.className = "choice-btn";
 
-    btn.innerHTML = `
-        <span class="btn-back"></span>
-        <span class="btn-front">${c.text}</span>
-    `;
+            btn.innerHTML = `
+                <span class="btn-back"></span>
+                <span class="btn-front">${c.text}</span>
+            `;
 
-    btn.onclick = () => loadScene(c.next);
-    options.appendChild(btn);
-});
+            btn.onclick = () => loadScene(c.next);
+            options.appendChild(btn);
+        });
 
         options.style.display = "flex";
     };
@@ -583,8 +583,8 @@ function restartGame() {
     loadScene("start");
 }
 
-// 啟動
-
+// ✅ 這裡不要自動呼叫 startGame()
+// 啟動只在點擊「開始按鈕」時才呼叫
 </script>
 
 </body>
