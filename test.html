@@ -415,26 +415,6 @@ function startGame() {
     }, 2000);
 }
 
-    
-    // 啟動蝴蝶發光動畫
-    butterfly.classList.add("butterfly-glow-active");
-    
-    // 延遲 2 秒（等動畫播完大部分）後才開始進入遊戲
-    setTimeout(() => {
-        // 讓整個畫面淡出
-        screen.style.transition = "opacity 0.8s";
-        screen.style.opacity = "0";
-        
-        setTimeout(() => {
-            screen.style.display = "none";
-            loadScene("start");
-            
-            // 重置狀態以便下次回到主選單
-            butterfly.classList.remove("butterfly-glow-active");
-            screen.style.opacity = "1";
-        }, 800);
-    }, 2000); 
-}
 
 /* =================================================
    劇情資料（你之後只需要改這一區）
