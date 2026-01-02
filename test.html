@@ -362,35 +362,59 @@ html, body {
 let musicStarted = false;
 
 function toggleMusic() {
-    if (!musicStarted) {
+    bgmVideo.loop = true;
+
+    if (bgmVideo.paused) {
         bgmVideo.volume = 0.6;
-        bgmVideo.loop = true;
         bgmVideo.play().catch(() => {});
-        musicStarted = true;
     } else {
-        if (bgmVideo.paused) {
-            bgmVideo.play();
-        } else {
-            bgmVideo.pause();
-        }
+        bgmVideo.pause();
     }
 }
 
-   if (!bgmVideo.paused) {
-    const fadeOut = setInterval(() => {
-        if (bgmVideo.volume > 0.05) {
-            bgmVideo.volume -= 0.05;
+
+   function fadeOutBGM(duration = 1000) {
+    const step = 50;
+    const volumeStep = bgmVideo.volume / (duration / step);
+
+    const fade = setInterval(() => {
+        if (bgmVideo.volume > volumeStep) {
+            bgmVideo.volume -= volumeStep;
         } else {
+            bgmVideo.volume = 0;
             bgmVideo.pause();
-            bgmVideo.volume = 0.6; // 重置給下次用
-            clearInterval(fadeOut);
+            bgmVideo.volume = 0.6; // 重置給下次
+            clearInterval(fade);
         }
-    }, 100);
+    }, step);
 }
+
 
 function startGame() {
     const butterfly = document.getElementById("butterfly-layer");
     const screen = document.getElementById("start-screen");
+
+    butterfly.classList.add("butterfly-glow-active");
+
+    // ⭐ 如果音樂有播，才淡出
+    if (!bgmVideo.paused) {
+        fadeOutBGM(1200);
+    }
+
+    setTimeout(() => {
+        screen.style.transition = "opacity 0.8s";
+        screen.style.opacity = "0";
+
+        setTimeout(() => {
+            screen.style.display = "none";
+            loadScene("start");
+
+            butterfly.classList.remove("butterfly-glow-active");
+            screen.style.opacity = "1";
+        }, 800);
+    }, 2000);
+}
+
     
     // 啟動蝴蝶發光動畫
     butterfly.classList.add("butterfly-glow-active");
@@ -692,8 +716,11 @@ function loadFromSlot(i) {
    回到開端
 ================================================= */
 function restartGame() {
+    video.pause();
+    document.getElementById("start-screen").style.display = "flex";
     loadScene("start");
 }
+
 </script>
 
 </body>
