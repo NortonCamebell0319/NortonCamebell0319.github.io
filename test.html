@@ -7,6 +7,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+   .music-hit {
+    position: absolute;
+
+    /* ❗請依你的底圖微調 */
+    left: 12%;
+    top: 68%;
+
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+
+    background: rgba(255, 0, 0, 0); /* 完全透明 */
+    border: none;
+    cursor: pointer;
+    z-index: 15;
+}
+
 /* =================================================
    開始畫面與蝴蝶發光樣式
 ================================================= */
@@ -296,6 +313,10 @@ html, body {
 </head>
 
 <body>
+   <video id="bgm-video" preload="auto" style="display:none">
+    <source src="開始畫面音樂.mp4" type="video/mp4">
+</video>
+
    <div id="start-screen">
       <div class="start-content-wrapper">
          <div id="butterfly-layer"></div>
@@ -303,6 +324,8 @@ html, body {
          <button class="start-hit start-extra"></button>
          <button class="start-hit start-begin" onclick="startGame()"></button>
          <button class="start-hit start-ending"></button>
+         <button class="music-hit" onclick="toggleMusic()"></button>
+
       </div>
    </div>
 
@@ -335,6 +358,36 @@ html, body {
    </div>
 
 <script>
+   const bgmVideo = document.getElementById("bgm-video");
+let musicStarted = false;
+
+function toggleMusic() {
+    if (!musicStarted) {
+        bgmVideo.volume = 0.6;
+        bgmVideo.loop = true;
+        bgmVideo.play().catch(() => {});
+        musicStarted = true;
+    } else {
+        if (bgmVideo.paused) {
+            bgmVideo.play();
+        } else {
+            bgmVideo.pause();
+        }
+    }
+}
+
+   if (!bgmVideo.paused) {
+    const fadeOut = setInterval(() => {
+        if (bgmVideo.volume > 0.05) {
+            bgmVideo.volume -= 0.05;
+        } else {
+            bgmVideo.pause();
+            bgmVideo.volume = 0.6; // 重置給下次用
+            clearInterval(fadeOut);
+        }
+    }, 100);
+}
+
 function startGame() {
     const butterfly = document.getElementById("butterfly-layer");
     const screen = document.getElementById("start-screen");
