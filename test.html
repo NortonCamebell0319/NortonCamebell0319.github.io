@@ -433,8 +433,13 @@ const story = {
         video: "end落單.mp4",
         choices: [],
         isEnd: true
+    }
+   the_best_choice: {
+        title: "受害人？加害人？",
+        video: "end共情.mp4",
+        choices: [],
+        isEnd: true
     },
-
    the_blood: {
         title: "再也逃離不了的惡夢",
         video: "end血色的呻吟.mp4",
@@ -464,10 +469,15 @@ const story = {
         title: "洛克斯的咖啡廳",
         video: "咖啡廳.mp4",
         choices: [
-            { text: "等待他回來", next: "wait" },
-            { text: "正在施工,勿點!", next: "sorry" }
+            { text: "等待他回來<施工中>", next: "wait" },
+            { text: "直接離去", next: "call" }
         ]
     },
+   call: {
+        title: "恐懼的聲音？",
+        video: "她的電話.mp4",
+        choices:[],
+        nextScene: "sorry"
 
    wait: {
         title: "再次相遇",
@@ -529,7 +539,7 @@ const story = {
         title: "對童年的聆聽",
         video: "童年的評價.mp4",
         choices: [
-           { text: "母親都是為了你好<施工中>", next: "the_best_choice" },
+           { text: "母親都是為了你好", next: "the_best_choice" },
            { text: "以後都有我在<施工中>", next: "i_will_by_your_side" },
         ],
     },
